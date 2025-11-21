@@ -27,6 +27,9 @@ $stmt = $pdo->prepare("
         a.appointment_time,
         a.status as appointment_status,
         a.appointment_purpose,
+        a.cancel_reason,
+        a.cancel_details,
+        a.cancel_requested_at,
         s.name as service_name,
         s.category as service_category,
         CONCAT(u.first_name, ' ', u.last_name) as doctor_name,
@@ -370,6 +373,28 @@ $unreadCount = $unreadStmt->fetchColumn();
                                 <div class="detail-row">
                                     <span class="detail-label">Purpose:</span>
                                     <span class="detail-value"><?php echo htmlspecialchars($notification['appointment_purpose']); ?></span>
+                                </div>
+                                <?php endif; ?>
+                                
+                                <?php if ($notification['appointment_status'] === 'cancelled' && $notification['cancel_reason']): ?>
+                                <div style="margin-top: 12px; padding-top: 12px; border-top: 2px solid #fee2e2;">
+                                    <h5 style="font-size: 13px; font-weight: 700; color: #dc2626; margin-bottom: 8px;">Cancellation Details</h5>
+                                    <div class="detail-row">
+                                        <span class="detail-label">Reason:</span>
+                                        <span class="detail-value" style="color: #dc2626;"><?php echo htmlspecialchars($notification['cancel_reason']); ?></span>
+                                    </div>
+                                    <?php if ($notification['cancel_details']): ?>
+                                    <div class="detail-row">
+                                        <span class="detail-label">Details:</span>
+                                        <span class="detail-value" style="color: #991b1b; font-style: italic;">"<?php echo htmlspecialchars($notification['cancel_details']); ?>"</span>
+                                    </div>
+                                    <?php endif; ?>
+                                    <?php if ($notification['cancel_requested_at']): ?>
+                                    <div class="detail-row">
+                                        <span class="detail-label">Cancelled on:</span>
+                                        <span class="detail-value"><?php echo date('F j, Y \a\t g:i A', strtotime($notification['cancel_requested_at'])); ?></span>
+                                    </div>
+                                    <?php endif; ?>
                                 </div>
                                 <?php endif; ?>
                             </div>

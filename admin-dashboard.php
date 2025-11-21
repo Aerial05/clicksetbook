@@ -368,73 +368,85 @@ $stats['total_appointments'] = $stmt->fetch()['count'];
         /* Stats Grid */
         .stats-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 20px;
-            margin-bottom: 32px;
-            padding: 20px 24px;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 12px;
+            margin-bottom: 20px;
+            padding: 12px 16px;
             max-width: 1600px;
             margin-left: auto;
             margin-right: auto;
         }
 
         .stat-card {
-            background: white;
-            border-radius: 14px;
-            padding: 24px;
+            background: linear-gradient(135deg, #ffffff 0%, #f9fafb 100%);
+            border-radius: 10px;
+            padding: 14px 16px;
             border: 1px solid #e5e7eb;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
-            transition: all 0.3s ease;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 12px;
         }
 
         .stat-card:hover {
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
-            transform: translateY(-4px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            transform: translateY(-2px);
             border-color: #d1d5db;
         }
 
         .stat-card-icon {
-            width: 56px;
-            height: 56px;
-            border-radius: 14px;
+            width: 42px;
+            height: 42px;
+            border-radius: 10px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 28px;
-            margin-bottom: 16px;
+            font-size: 20px;
+            flex-shrink: 0;
         }
 
         .stat-card-icon.blue {
-            background: linear-gradient(135deg, rgba(30, 58, 138, 0.1), rgba(59, 130, 246, 0.1));
-            color: #1e3a8a;
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
         }
 
         .stat-card-icon.green {
-            background: linear-gradient(135deg, rgba(34, 197, 94, 0.1), rgba(74, 222, 128, 0.1));
-            color: #15803d;
+            background: linear-gradient(135deg, #10b981, #059669);
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
         }
 
         .stat-card-icon.orange {
-            background: linear-gradient(135deg, rgba(249, 115, 22, 0.1), rgba(251, 146, 60, 0.1));
-            color: #c2410c;
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
         }
 
         .stat-card-icon.purple {
-            background: linear-gradient(135deg, rgba(168, 85, 247, 0.1), rgba(192, 132, 250, 0.1));
-            color: #6d28d9;
+            background: linear-gradient(135deg, #a855f7, #9333ea);
+            box-shadow: 0 4px 12px rgba(168, 85, 247, 0.3);
+        }
+
+        .stat-card-content {
+            flex: 1;
+            min-width: 0;
         }
 
         .stat-card-value {
-            font-size: 32px;
+            font-size: 24px;
             font-weight: 700;
-            color: var(--text-color);
-            margin-bottom: 6px;
-            letter-spacing: -1px;
+            color: #111827;
+            line-height: 1;
+            margin-bottom: 4px;
+            letter-spacing: -0.5px;
         }
 
         .stat-card-label {
-            font-size: 13px;
+            font-size: 11px;
             color: #6b7280;
-            font-weight: 500;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            line-height: 1.2;
         }
 
         /* Content Sections */
@@ -1126,33 +1138,45 @@ $stats['total_appointments'] = $stmt->fetch()['count'];
                 <div class="stats-grid">
                     <div class="stat-card">
                         <div class="stat-card-icon blue">👥</div>
-                        <div class="stat-card-value"><?php echo $stats['total_users']; ?></div>
-                        <div class="stat-card-label">Total Users</div>
+                        <div class="stat-card-content">
+                            <div class="stat-card-value"><?php echo $stats['total_users']; ?></div>
+                            <div class="stat-card-label">Total Users</div>
+                        </div>
                     </div>
                     <div class="stat-card">
                         <div class="stat-card-icon green">👨‍⚕️</div>
-                        <div class="stat-card-value"><?php echo $stats['total_doctors']; ?></div>
-                        <div class="stat-card-label">Doctors</div>
+                        <div class="stat-card-content">
+                            <div class="stat-card-value"><?php echo $stats['total_doctors']; ?></div>
+                            <div class="stat-card-label">Doctors</div>
+                        </div>
                     </div>
                     <div class="stat-card">
                         <div class="stat-card-icon purple">🔬</div>
-                        <div class="stat-card-value"><?php echo $stats['total_services']; ?></div>
-                        <div class="stat-card-label">Services</div>
+                        <div class="stat-card-content">
+                            <div class="stat-card-value"><?php echo $stats['total_services']; ?></div>
+                            <div class="stat-card-label">Services</div>
+                        </div>
                     </div>
                     <div class="stat-card">
                         <div class="stat-card-icon orange">⏳</div>
-                        <div class="stat-card-value"><?php echo $stats['pending_appointments']; ?></div>
-                        <div class="stat-card-label">Pending</div>
+                        <div class="stat-card-content">
+                            <div class="stat-card-value"><?php echo $stats['pending_appointments']; ?></div>
+                            <div class="stat-card-label">Pending</div>
+                        </div>
                     </div>
                     <div class="stat-card">
                         <div class="stat-card-icon blue">📅</div>
-                        <div class="stat-card-value"><?php echo $stats['today_appointments']; ?></div>
-                        <div class="stat-card-label">Today</div>
+                        <div class="stat-card-content">
+                            <div class="stat-card-value"><?php echo $stats['today_appointments']; ?></div>
+                            <div class="stat-card-label">Today</div>
+                        </div>
                     </div>
                     <div class="stat-card">
                         <div class="stat-card-icon green">✅</div>
-                        <div class="stat-card-value"><?php echo $stats['total_appointments']; ?></div>
-                        <div class="stat-card-label">Total Bookings</div>
+                        <div class="stat-card-content">
+                            <div class="stat-card-value"><?php echo $stats['total_appointments']; ?></div>
+                            <div class="stat-card-label">Total Bookings</div>
+                        </div>
                     </div>
                 </div>
 
@@ -1160,7 +1184,7 @@ $stats['total_appointments'] = $stmt->fetch()['count'];
                 <div class="card">
                     <div class="section-header">
                         <h2 class="section-title">Recent Appointments</h2>
-                        <a href="#" class="admin-nav-item" data-section="appointments" style="padding: 8px 16px; font-size: 13px;">View All</a>
+                        <a href="#" class="admin-nav-item manage-appointment-btn" data-section="appointments" style="padding: 10px 22px; font-size: 14px; font-weight: 600; background: var(--primary-color); color: #fff; border-radius: 8px; box-shadow: 0 2px 8px rgba(30,58,138,0.08); border: none; text-decoration: none; transition: background 0.2s;">Manage Appointment</a>
                     </div>
                     <div id="recent-appointments">
                         <div class="loading-state">
@@ -1168,6 +1192,9 @@ $stats['total_appointments'] = $stmt->fetch()['count'];
                             <p>Loading appointments...</p>
                         </div>
                     </div>
+                    
+                    <!-- Recent Appointments Pagination -->
+                    <div id="recent-appointments-pagination" style="display: flex; justify-content: center; gap: 8px; margin-top: 20px; flex-wrap: wrap;"></div>
                 </div>
             </section>
 
@@ -1541,6 +1568,73 @@ $stats['total_appointments'] = $stmt->fetch()['count'];
                         <div style="display: flex; gap: 12px; margin-top: 24px; justify-content: flex-end;">
                             <button type="button" class="btn btn-secondary" onclick="closeAddServiceModal()">Cancel</button>
                             <button type="submit" class="btn btn-primary">Add Service</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Edit Service Modal -->
+            <div id="editServiceModal" class="modal" style="display: none;">
+                <div class="modal-content" style="max-width: 600px;">
+                    <div class="modal-header">
+                        <h2 style="margin: 0; font-size: 20px; font-weight: 600;">Edit Service</h2>
+                        <button class="close-modal" onclick="closeEditServiceModal()">&times;</button>
+                    </div>
+                    <form id="editServiceForm">
+                        <input type="hidden" name="id" id="editServiceId">
+                        <div style="display: grid; gap: 16px;">
+                            <div>
+                                <label class="form-label">Service Name *</label>
+                                <input type="text" name="name" id="editServiceName" class="form-control" placeholder="e.g., Blood Test - Complete Panel" required>
+                            </div>
+                            <div>
+                                <label class="form-label">Description *</label>
+                                <textarea name="description" id="editServiceDescription" class="form-control" rows="3" placeholder="Detailed description of the service" required></textarea>
+                            </div>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                                <div>
+                                    <label class="form-label">Category *</label>
+                                    <select name="category" id="editServiceCategory" class="form-control" required>
+                                        <option value="">Select Category</option>
+                                        <option value="consultation">Consultation</option>
+                                        <option value="laboratory">Laboratory</option>
+                                        <option value="radiology">Radiology</option>
+                                        <option value="physiotherapy">Physiotherapy</option>
+                                        <option value="surgery">Surgery</option>
+                                        <option value="emergency">Emergency</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="form-label">Duration (Minutes) *</label>
+                                    <input type="number" name="duration_minutes" id="editServiceDuration" class="form-control" min="5" step="5" value="30" required>
+                                </div>
+                            </div>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                                <div>
+                                    <label class="form-label">Base Cost (₱) *</label>
+                                    <input type="number" name="base_cost" id="editServiceCost" class="form-control" step="0.01" min="0" required>
+                                </div>
+                                <div style="display: flex; align-items: flex-end;">
+                                    <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; padding-bottom: 8px;">
+                                        <input type="checkbox" name="requires_doctor" id="editServiceRequiresDoctor" value="1">
+                                        <span>Requires Doctor</span>
+                                    </label>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="form-label">Preparation Instructions</label>
+                                <textarea name="preparation_instructions" id="editServicePreparation" class="form-control" rows="3" placeholder="Any preparation instructions for patients (optional)"></textarea>
+                            </div>
+                            <div>
+                                <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                                    <input type="checkbox" name="is_active" id="editServiceActive" value="1" checked>
+                                    <span>Active (Available for booking)</span>
+                                </label>
+                            </div>
+                        </div>
+                        <div style="display: flex; gap: 12px; margin-top: 24px; justify-content: flex-end;">
+                            <button type="button" class="btn btn-secondary" onclick="closeEditServiceModal()">Cancel</button>
+                            <button type="submit" class="btn btn-primary">Update Service</button>
                         </div>
                     </form>
                 </div>
@@ -1990,9 +2084,14 @@ $stats['total_appointments'] = $stmt->fetch()['count'];
             }
         }
 
+        // Pagination state for recent appointments
+        let currentRecentPage = 1;
+        const recentAppointmentsPerPage = 4;
+        let allRecentAppointments = [];
+
         // Load recent appointments for overview
         function loadRecentAppointments() {
-            fetch('api/admin/get-appointments.php?limit=5&recent=true')
+            fetch('api/admin/get-appointments.php?limit=100&recent=true')
                 .then(r => {
                     if (!r.ok) {
                         throw new Error('Network response was not ok');
@@ -2003,23 +2102,92 @@ $stats['total_appointments'] = $stmt->fetch()['count'];
                     try {
                         const data = JSON.parse(text);
                         if (data.success) {
-                            renderAppointments(data.appointments, 'recent-appointments', true);
+                            allRecentAppointments = data.appointments;
+                            currentRecentPage = 1;
+                            renderRecentAppointmentsWithPagination();
                         } else {
                             document.getElementById('recent-appointments').innerHTML = 
                                 '<div class="empty-state"><p>Error: ' + (data.message || 'Failed to load appointments') + '</p></div>';
+                            document.getElementById('recent-appointments-pagination').innerHTML = '';
                         }
                     } catch (e) {
                         console.error('JSON parse error:', e);
                         console.error('Response text:', text);
                         document.getElementById('recent-appointments').innerHTML = 
                             '<div class="empty-state"><p>Error loading appointments. Check console for details.</p></div>';
+                        document.getElementById('recent-appointments-pagination').innerHTML = '';
                     }
                 })
                 .catch(err => {
                     console.error('Fetch error:', err);
                     document.getElementById('recent-appointments').innerHTML = 
                         '<div class="empty-state"><p>Error: ' + err.message + '</p></div>';
+                    document.getElementById('recent-appointments-pagination').innerHTML = '';
                 });
+        }
+        
+        function renderRecentAppointmentsWithPagination() {
+            const container = document.getElementById('recent-appointments');
+            const totalPages = Math.ceil(allRecentAppointments.length / recentAppointmentsPerPage);
+            const startIndex = (currentRecentPage - 1) * recentAppointmentsPerPage;
+            const endIndex = startIndex + recentAppointmentsPerPage;
+            const paginatedAppointments = allRecentAppointments.slice(startIndex, endIndex);
+            
+            if (paginatedAppointments.length === 0) {
+                container.innerHTML = '<div class="empty-state"><p>No recent appointments</p></div>';
+                document.getElementById('recent-appointments-pagination').innerHTML = '';
+                return;
+            }
+            
+            renderAppointments(paginatedAppointments, 'recent-appointments', true);
+            
+            // Render pagination controls
+            const paginationContainer = document.getElementById('recent-appointments-pagination');
+            if (totalPages > 1) {
+                let paginationHTML = '';
+                
+                // Previous button
+                paginationHTML += `
+                    <button onclick="changeRecentPage(${currentRecentPage - 1})" 
+                            class="btn btn-sm" 
+                            ${currentRecentPage === 1 ? 'disabled' : ''}
+                            style="padding: 8px 12px; ${currentRecentPage === 1 ? 'opacity: 0.5; cursor: not-allowed;' : ''}">
+                        ← Previous
+                    </button>
+                `;
+                
+                // Page numbers
+                for (let i = 1; i <= totalPages; i++) {
+                    paginationHTML += `
+                        <button onclick="changeRecentPage(${i})" 
+                                class="btn btn-sm ${i === currentRecentPage ? 'btn-primary' : ''}" 
+                                style="padding: 8px 12px; min-width: 40px;">
+                            ${i}
+                        </button>
+                    `;
+                }
+                
+                // Next button
+                paginationHTML += `
+                    <button onclick="changeRecentPage(${currentRecentPage + 1})" 
+                            class="btn btn-sm" 
+                            ${currentRecentPage === totalPages ? 'disabled' : ''}
+                            style="padding: 8px 12px; ${currentRecentPage === totalPages ? 'opacity: 0.5; cursor: not-allowed;' : ''}">
+                        Next →
+                    </button>
+                `;
+                
+                paginationContainer.innerHTML = paginationHTML;
+            } else {
+                paginationContainer.innerHTML = '';
+            }
+        }
+        
+        function changeRecentPage(page) {
+            const totalPages = Math.ceil(allRecentAppointments.length / recentAppointmentsPerPage);
+            if (page < 1 || page > totalPages) return;
+            currentRecentPage = page;
+            renderRecentAppointmentsWithPagination();
         }
 
         // Alias for consistency with delete functions
@@ -3082,8 +3250,39 @@ $stats['total_appointments'] = $stmt->fetch()['count'];
         }
         
         function editService(id) {
-            showToast('info', 'Loading', 'Edit Service #' + id + ' - Loading...');
-            // TODO: Implement edit service modal with API call to fetch service data
+            // Fetch service data
+            fetch(`api/admin/services.php?action=getById&id=${id}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        const service = data.service;
+                        
+                        // Populate form fields
+                        document.getElementById('editServiceId').value = service.id;
+                        document.getElementById('editServiceName').value = service.name;
+                        document.getElementById('editServiceDescription').value = service.description;
+                        document.getElementById('editServiceCategory').value = service.category;
+                        document.getElementById('editServiceDuration').value = service.duration_minutes;
+                        document.getElementById('editServiceCost').value = service.base_cost;
+                        document.getElementById('editServiceRequiresDoctor').checked = service.requires_doctor == 1;
+                        document.getElementById('editServicePreparation').value = service.preparation_instructions || '';
+                        document.getElementById('editServiceActive').checked = service.is_active == 1;
+                        
+                        // Show modal
+                        document.getElementById('editServiceModal').style.display = 'flex';
+                    } else {
+                        showToast('error', 'Error', data.message || 'Failed to load service');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showToast('error', 'Error', 'Failed to load service');
+                });
+        }
+
+        function closeEditServiceModal() {
+            document.getElementById('editServiceModal').style.display = 'none';
+            document.getElementById('editServiceForm').reset();
         }
         
         function archiveService(id) {
@@ -3452,6 +3651,43 @@ $stats['total_appointments'] = $stmt->fetch()['count'];
             } finally {
                 submitBtn.disabled = false;
                 submitBtn.textContent = 'Add Service';
+            }
+        });
+
+        // Edit Service Form Handler
+        document.getElementById('editServiceForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            formData.append('action', 'update');
+            
+            const submitBtn = this.querySelector('button[type="submit"]');
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Updating...';
+            
+            try {
+                const response = await fetch('api/admin/services.php', {
+                    method: 'POST',
+                    credentials: 'same-origin',
+                    body: formData
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    const serviceName = formData.get('name');
+                    showToast('success', 'Success', `Service "${serviceName}" updated successfully!`);
+                    closeEditServiceModal();
+                    loadServices(); // Reload services list
+                } else {
+                    showToast('error', 'Error', result.message);
+                }
+            } catch (error) {
+                console.error('Error updating service:', error);
+                showToast('error', 'Error', 'An error occurred while updating the service. Please try again.');
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Update Service';
             }
         });
 

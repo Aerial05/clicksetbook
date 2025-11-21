@@ -1,3 +1,18 @@
+.manage-appointment-btn {
+    background: var(--primary-color);
+    color: #fff !important;
+    border-radius: 8px;
+    font-weight: 600;
+    box-shadow: 0 2px 8px rgba(30,58,138,0.08);
+    border: none;
+    text-decoration: none;
+    padding: 10px 22px;
+    font-size: 14px;
+    transition: background 0.2s;
+}
+.manage-appointment-btn:hover {
+    background: var(--primary-dark);
+}
 /* Click Set Book - Mobile App Styles */
 /* Mobile-first responsive design */
 

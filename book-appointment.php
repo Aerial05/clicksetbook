@@ -50,7 +50,10 @@ if (!$item) {
 <link rel="stylesheet" href="app-styles.css">
 <link rel="stylesheet" href="styles.css">
 <style>
-/* --- Main Layout --- */
+body {
+    padding-bottom: 160px;
+}
+/* --- Time Slots --- */
 body { margin: 0; padding: 0; }
 .container { padding: 0; display: flex; flex-direction: column; min-height: 100vh; }
 .content-wrapper { flex: 1; padding-bottom: 100px; overflow-y: auto; }
@@ -181,33 +184,42 @@ body { margin: 0; padding: 0; }
 </div>
 
 <!-- Calendar + Time Slots (Two Column) -->
-<div class="booking-layout">
-    <!-- Time Slots (Left) -->
-    <div id="timeSection" style="display:none;">
-        <h3 style="font-size:18px;font-weight:700;margin-bottom:8px;">Select Time</h3>
-        <p style="font-size:14px;color:var(--text-light);margin-bottom:16px;">Available time slots</p>
-        <div class="time-slots-grid" id="timeSlotsGrid"></div>
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
+    
+    <!-- Time Slots (Left) - Always visible -->
+    <div>
+        <h3 style="font-size:18px;font-weight:700;margin-bottom:12px;color:var(--text-primary);">Available Time Slots</h3>
+        <div id="timeSection" style="display:block;">
+            <div class="time-slots-grid" id="timeSlotsGrid">
+                <div style="grid-column:1/-1;text-align:center;padding:40px 20px;color:var(--text-light);">
+                    <svg style="width: 48px; height: 48px; margin: 0 auto 12px; opacity: 0.3;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                        <circle cx="12" cy="12" r="3"></circle>
+                    </svg>
+                    <div style="font-size: 14px;">Select a date to view available time slots</div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- Calendar (Right) -->
     <div>
-        <h3 style="font-size:18px;font-weight:700;margin-bottom:8px;">Select Date</h3>
-        <p style="font-size:14px;color:var(--text-light);margin-bottom:16px;">Choose an available date</p>
-
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
-            <button onclick="previousMonth()" style="background: var(--bg-secondary);border:none;width:36px;height:36px;border-radius:8px;cursor:pointer;display:flex;align-items:center;justify-content:center;">
-                <svg style="width:16px;height:16px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M15 18l-6-6 6-6"/>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+            <h3 style="font-size:18px;font-weight:700;margin:0;color:var(--text-primary);">Select Date</h3>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+            <button onclick="previousMonth()" style="background:var(--bg-tertiary);border:none;width:36px;height:36px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;">
+                <svg style="width:20px;height:20px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="15 18 9 12 15 6"></polyline>
                 </svg>
             </button>
-            <span id="currentMonth" style="font-size:16px;font-weight:700;"></span>
-            <button onclick="nextMonth()" style="background: var(--bg-secondary);border:none;width:36px;height:36px;border-radius:8px;cursor:pointer;display:flex;align-items:center;justify-content:center;">
-                <svg style="width:16px;height:16px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M9 18l6-6-6-6"/>
+            <span id="currentMonth" style="font-weight:700;font-size:16px;"></span>
+            <button onclick="nextMonth()" style="background:var(--bg-tertiary);border:none;width:36px;height:36px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;">
+                <svg style="width:20px;height:20px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="9 18 15 12 9 6"></polyline>
                 </svg>
             </button>
         </div>
-
         <div class="calendar-grid" id="calendarGrid"></div>
     </div>
 </div>
@@ -249,8 +261,17 @@ body { margin: 0; padding: 0; }
 </div>
 
 <!-- Book Button Fixed at Bottom -->
-<div id="bookButtonContainer">
-    <button id="bookBtn" class="btn btn-primary btn-block btn-lg btn-book-main" disabled style="margin: 0;">Book Appointment</button>
+<div style="position: fixed; bottom: 80px; left: 0; right: 0; padding: 12px 16px; background: transparent; box-shadow: none; z-index: 100;">
+    <div style="max-width: min(600px, 90vw); margin: 0 auto;">
+        <button id="bookBtn" 
+                class="btn btn-primary btn-block btn-lg btn-book-main" 
+                disabled 
+                style="display: block; width: 100%; padding: 14px; background: var(--primary-color); color: white; text-align: center; border-radius: 12px; font-weight: 600; font-size: 15px; border: none; cursor: pointer; box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3); transition: all 0.2s ease;"
+                onmouseover="if(!this.disabled) { this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 16px rgba(79, 70, 229, 0.4)'; }"
+                onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 12px rgba(79, 70, 229, 0.3)';">
+            Book Appointment
+        </button>
+    </div>
 </div>
 
 </div>
@@ -303,7 +324,7 @@ function renderCalendar(){
 
 async function loadTimeSlots(){
     const grid=document.getElementById('timeSlotsGrid');
-    grid.innerHTML='<div style="grid-column:1/-1;text-align:center;padding:20px;">Loading...</div>';
+    grid.innerHTML='<div style="grid-column:1/-1;text-align:center;padding:20px;color:var(--text-light);">Loading...</div>';
     try{
         const year=selectedDate.getFullYear();
         const month=String(selectedDate.getMonth()+1).padStart(2,'0');
@@ -338,7 +359,7 @@ async function loadTimeSlots(){
                 grid.appendChild(el);
             });
         } else {
-            grid.innerHTML='<div style="grid-column:1/-1;text-align:center;padding:20px;color:var(--text-light);">No available slots</div>';
+            grid.innerHTML='<div style="grid-column:1/-1;text-align:center;padding:40px 20px;color:var(--text-light);"><svg style="width: 48px; height: 48px; margin: 0 auto 12px; opacity: 0.3;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg><div style="font-size: 14px;">No available time slots for this date</div></div>';
         }
     }catch(e){ console.error(e); grid.innerHTML='<div style="grid-column:1/-1;text-align:center;padding:20px;color:red;">Error loading slots</div>'; }
 }
@@ -347,7 +368,6 @@ function selectDate(date,element){
     selectedDate=date; selectedTime=null;
     document.querySelectorAll('.calendar-day').forEach(e=>e.classList.remove('selected'));
     element.classList.add('selected');
-    document.getElementById('timeSection').style.display='block';
     loadTimeSlots();
     updateBookButton();
 }

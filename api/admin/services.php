@@ -76,6 +76,39 @@ try {
             ]);
             break;
             
+        case 'getById':
+            $serviceId = $_GET['id'] ?? 0;
+            
+            $stmt = $pdo->prepare("
+                SELECT 
+                    id,
+                    name,
+                    description,
+                    category,
+                    duration_minutes,
+                    base_cost,
+                    requires_doctor,
+                    preparation_instructions,
+                    is_active,
+                    created_at,
+                    updated_at
+                FROM services 
+                WHERE id = ?
+            ");
+            
+            $stmt->execute([$serviceId]);
+            $service = $stmt->fetch(PDO::FETCH_ASSOC);
+            
+            if (!$service) {
+                throw new Exception('Service not found');
+            }
+            
+            echo json_encode([
+                'success' => true,
+                'service' => $service
+            ]);
+            break;
+            
         case 'create':
             $name = $_POST['name'] ?? '';
             $description = $_POST['description'] ?? '';
