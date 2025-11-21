@@ -25,9 +25,11 @@ $input = json_decode(file_get_contents('php://input'), true);
 
 $action = $input['action'] ?? '';
 $bookingId = $input['id'] ?? 0;
+$cancelReason = $input['cancel_reason'] ?? null;
+$cancelDetails = $input['cancel_details'] ?? null;
 
 // Validate inputs
-if (!$bookingId || !in_array($action, ['cancel', 'reschedule', 'complete'])) {
+if (!$bookingId || !in_array($action, ['cancel', 'complete'])) {
     echo json_encode(['success' => false, 'message' => 'Invalid request']);
     exit();
 }
@@ -44,9 +46,18 @@ try {
     }
     
     if ($action == 'cancel') {
-        // Update status to cancelled
-        $stmt = $pdo->prepare("UPDATE appointments SET status = 'cancelled', cancelled_at = NOW(), cancelled_by = ?, updated_at = NOW() WHERE id = ?");
-        $stmt->execute([$userId, $bookingId]);
+        // Update status to cancelled with reason
+        $stmt = $pdo->prepare("UPDATE appointments SET 
+                               status = 'cancelled', 
+                               cancelled_at = NOW(), 
+                               cancelled_by = ?, 
+                               cancel_request = 1,
+                               cancel_reason = ?,
+                               cancel_details = ?,
+                               cancel_requested_at = NOW(),
+                               updated_at = NOW() 
+                               WHERE id = ?");
+        $stmt->execute([$userId, $cancelReason, $cancelDetails, $bookingId]);
         
         // Create notification
         $stmt = $pdo->prepare("INSERT INTO notifications (user_id, title, message_content, template_type, notification_type, is_read, created_at) 
@@ -65,12 +76,6 @@ try {
         echo json_encode([
             'success' => true,
             'message' => 'Appointment marked as completed'
-        ]);
-    } elseif ($action == 'reschedule') {
-        // TODO: Implement reschedule logic
-        echo json_encode([
-            'success' => false,
-            'message' => 'Reschedule functionality not yet implemented'
         ]);
     }
     

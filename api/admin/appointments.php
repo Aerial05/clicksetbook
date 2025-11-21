@@ -51,6 +51,10 @@ try {
                     a.total_cost,
                     a.payment_status,
                     a.created_at,
+                    a.cancel_request,
+                    a.cancel_reason,
+                    a.cancel_details,
+                    a.cancel_requested_at,
                     s.name as service_name,
                     s.category as service_category,
                     CONCAT(u.first_name, ' ', u.last_name) as doctor_name
@@ -88,6 +92,18 @@ try {
                 throw new Exception('Invalid status');
             }
             
+            // Get appointment details first
+            $aptStmt = $pdo->prepare("SELECT patient_id, patient_name, patient_email, appointment_date, appointment_time, status FROM appointments WHERE id = ?");
+            $aptStmt->execute([$appointmentId]);
+            $appointment = $aptStmt->fetch(PDO::FETCH_ASSOC);
+            
+            if (!$appointment) {
+                throw new Exception('Appointment not found');
+            }
+            
+            $oldStatus = $appointment['status'];
+            
+            // Update appointment status
             $stmt = $pdo->prepare("
                 UPDATE appointments 
                 SET status = ?, 
@@ -101,10 +117,68 @@ try {
             // Log status change to appointment_history
             $historyStmt = $pdo->prepare("
                 INSERT INTO appointment_history (appointment_id, old_status, new_status, changed_by, created_at)
-                SELECT ?, status, ?, ?, NOW()
-                FROM appointments WHERE id = ?
+                VALUES (?, ?, ?, ?, NOW())
             ");
-            $historyStmt->execute([$appointmentId, $newStatus, getCurrentUser()['id'], $appointmentId]);
+            $historyStmt->execute([$appointmentId, $oldStatus, $newStatus, getCurrentUser()['id']]);
+            
+            // Create notification for the patient
+            if ($appointment['patient_id']) {
+                $notificationTitle = '';
+                $notificationMessage = '';
+                $templateType = 'status_update';
+                
+                // Format date and time for better readability
+                $formattedDate = date('F j, Y', strtotime($appointment['appointment_date']));
+                $formattedTime = date('g:i A', strtotime($appointment['appointment_time']));
+                
+                switch ($newStatus) {
+                    case 'confirmed':
+                        $notificationTitle = 'Appointment Confirmed';
+                        $notificationMessage = "Your appointment scheduled for {$formattedDate} at {$formattedTime} has been confirmed. Please arrive 10 minutes early.";
+                        $templateType = 'booking_confirmation';
+                        break;
+                    case 'cancelled':
+                        $notificationTitle = 'Appointment Cancelled';
+                        $notificationMessage = "Your appointment scheduled for {$formattedDate} at {$formattedTime} has been cancelled. If you did not request this cancellation, please contact us immediately.";
+                        $templateType = 'cancellation';
+                        break;
+                    case 'completed':
+                        $notificationTitle = 'Appointment Completed';
+                        $notificationMessage = "Your appointment on {$formattedDate} at {$formattedTime} has been marked as completed. Thank you for choosing our services.";
+                        break;
+                    case 'archived':
+                        $notificationTitle = 'Appointment Archived';
+                        $notificationMessage = "Your appointment scheduled for {$formattedDate} at {$formattedTime} has been archived.";
+                        break;
+                    case 'in_progress':
+                        $notificationTitle = 'Appointment In Progress';
+                        $notificationMessage = "Your appointment scheduled for {$formattedDate} at {$formattedTime} is currently in progress.";
+                        break;
+                    case 'no_show':
+                        $notificationTitle = 'Missed Appointment';
+                        $notificationMessage = "You missed your appointment scheduled for {$formattedDate} at {$formattedTime}. Please contact us to reschedule.";
+                        break;
+                    default:
+                        $notificationTitle = 'Appointment Status Updated';
+                        $notificationMessage = "Your appointment status has been updated to {$newStatus}.";
+                }
+                
+                // Insert notification
+                $notifStmt = $pdo->prepare("
+                    INSERT INTO notifications 
+                    (user_id, title, appointment_id, recipient_email, notification_type, template_type, subject, message_content, status, is_read, created_at) 
+                    VALUES (?, ?, ?, ?, 'email', ?, ?, ?, 'pending', 0, NOW())
+                ");
+                $notifStmt->execute([
+                    $appointment['patient_id'],
+                    $notificationTitle,
+                    $appointmentId,
+                    $appointment['patient_email'],
+                    $templateType,
+                    $notificationTitle,
+                    $notificationMessage
+                ]);
+            }
             
             echo json_encode([
                 'success' => true,
@@ -114,6 +188,17 @@ try {
             
         case 'archive':
             $appointmentId = $_POST['id'] ?? 0;
+            
+            // Get appointment details first
+            $aptStmt = $pdo->prepare("SELECT patient_id, patient_name, patient_email, appointment_date, appointment_time, status FROM appointments WHERE id = ?");
+            $aptStmt->execute([$appointmentId]);
+            $appointment = $aptStmt->fetch(PDO::FETCH_ASSOC);
+            
+            if (!$appointment) {
+                throw new Exception('Appointment not found');
+            }
+            
+            $oldStatus = $appointment['status'];
             
             // Archive appointment by changing status to 'archived'
             $stmt = $pdo->prepare("
@@ -127,10 +212,33 @@ try {
             // Log status change to appointment_history
             $historyStmt = $pdo->prepare("
                 INSERT INTO appointment_history (appointment_id, old_status, new_status, changed_by, created_at)
-                SELECT ?, status, 'archived', ?, NOW()
-                FROM appointments WHERE id = ?
+                VALUES (?, ?, 'archived', ?, NOW())
             ");
-            $historyStmt->execute([$appointmentId, getCurrentUser()['id'], $appointmentId]);
+            $historyStmt->execute([$appointmentId, $oldStatus, getCurrentUser()['id']]);
+            
+            // Create notification for the patient
+            if ($appointment['patient_id']) {
+                $formattedDate = date('F j, Y', strtotime($appointment['appointment_date']));
+                $formattedTime = date('g:i A', strtotime($appointment['appointment_time']));
+                
+                $notificationTitle = 'Appointment Archived';
+                $notificationMessage = "Your appointment scheduled for {$formattedDate} at {$formattedTime} has been archived.";
+                
+                // Insert notification
+                $notifStmt = $pdo->prepare("
+                    INSERT INTO notifications 
+                    (user_id, title, appointment_id, recipient_email, notification_type, template_type, subject, message_content, status, is_read, created_at) 
+                    VALUES (?, ?, ?, ?, 'email', 'status_update', ?, ?, 'pending', 0, NOW())
+                ");
+                $notifStmt->execute([
+                    $appointment['patient_id'],
+                    $notificationTitle,
+                    $appointmentId,
+                    $appointment['patient_email'],
+                    $notificationTitle,
+                    $notificationMessage
+                ]);
+            }
             
             echo json_encode([
                 'success' => true,

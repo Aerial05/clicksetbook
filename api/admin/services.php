@@ -52,11 +52,9 @@ try {
                     s.is_active,
                     s.created_at,
                     s.updated_at,
-                    COUNT(DISTINCT a.id) as total_bookings,
-                    COUNT(DISTINCT f.id) as total_favorites
+                    COUNT(DISTINCT a.id) as total_bookings
                 FROM services s
                 LEFT JOIN appointments a ON s.id = a.service_id
-                LEFT JOIN favorites f ON s.id = f.item_id AND f.item_type = 'service'
                 " . $whereClause . "
                 GROUP BY s.id
                 ORDER BY s.created_at DESC

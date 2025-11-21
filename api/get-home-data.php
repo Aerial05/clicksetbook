@@ -67,8 +67,7 @@ function getHomeData($pdo) {
             $query = "SELECT d.*, 
                              COALESCE(CONCAT(u.first_name, ' ', u.last_name), CONCAT('Dr. ', d.specialty)) as name,
                              u.email,
-                             (SELECT COUNT(*) FROM appointments WHERE doctor_id = d.id AND status = 'completed') as patient_count,
-                             (SELECT AVG(rating) FROM reviews WHERE doctor_id = d.id) as rating
+                             (SELECT COUNT(*) FROM appointments WHERE doctor_id = d.id AND status = 'completed') as patient_count
                       FROM doctors d
                       LEFT JOIN users u ON d.user_id = u.id
                       WHERE d.is_available = 1";
@@ -179,9 +178,7 @@ function getDoctorDetails($pdo, $doctorId) {
             SELECT d.*, 
                    CONCAT(u.first_name, ' ', u.last_name) as name,
                    u.email,
-                   (SELECT COUNT(*) FROM appointments WHERE doctor_id = d.id AND status = 'completed') as patient_count,
-                   (SELECT AVG(rating) FROM reviews WHERE doctor_id = d.id) as avg_rating,
-                   (SELECT COUNT(*) FROM reviews WHERE doctor_id = d.id) as review_count
+                   (SELECT COUNT(*) FROM appointments WHERE doctor_id = d.id AND status = 'completed') as patient_count
             FROM doctors d
             LEFT JOIN users u ON d.user_id = u.id
             WHERE d.id = ?
@@ -194,22 +191,9 @@ function getDoctorDetails($pdo, $doctorId) {
             return;
         }
         
-        // Get reviews
-        $stmt = $pdo->prepare("
-            SELECT r.*, CONCAT(u.first_name, ' ', u.last_name) as patient_name
-            FROM reviews r
-            LEFT JOIN users u ON r.patient_id = u.id
-            WHERE r.doctor_id = ?
-            ORDER BY r.created_at DESC
-            LIMIT 10
-        ");
-        $stmt->execute([$doctorId]);
-        $reviews = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        
         echo json_encode([
             'success' => true,
-            'doctor' => $doctor,
-            'reviews' => $reviews
+            'doctor' => $doctor
         ]);
         
     } catch (PDOException $e) {

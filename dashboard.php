@@ -193,8 +193,6 @@ $specialty = $_GET['specialty'] ?? 'all';
                <div class="avatar-fallback ${avatarColor}" style="display:none;">${initials}</div>`
             : `<div class="avatar-fallback ${avatarColor}">${initials}</div>`;
         
-        const isFavorited = doctor.is_favorited == 1;
-        
         return `
             <div class="card doctor-card" onclick="location.href='doctor-details.php?id=${doctor.id}'">
                 <div class="card-header">
@@ -222,8 +220,6 @@ $specialty = $_GET['specialty'] ?? 'all';
     }
     
     function createServiceCard(service) {
-        const isFavorited = service.is_favorited == 1;
-        
         // Category icons mapping
         const categoryIcons = {
             'consultation': '👨‍⚕️',
@@ -265,24 +261,6 @@ $specialty = $_GET['specialty'] ?? 'all';
         document.getElementById('resultsContainer').innerHTML = '';
         document.getElementById('loadingState').classList.add('hidden');
         document.getElementById('emptyState').classList.remove('hidden');
-    }
-    
-    async function toggleFavorite(type, id, button) {
-        try {
-            const response = await fetch('api/toggle-favorite.php', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ type, id })
-            });
-            
-            const data = await response.json();
-            
-            if (data.success) {
-                button.classList.toggle('active');
-            }
-        } catch (error) {
-            console.error('Error toggling favorite:', error);
-        }
     }
     </script>
 </body>

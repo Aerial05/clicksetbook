@@ -37,15 +37,15 @@ $bookings = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 // Separate bookings by status
 $upcoming = array_filter($bookings, function($b) {
-    $appointmentDateTime = strtotime($b['appointment_date'] . ' ' . $b['appointment_time']);
-    return ($b['status'] == 'pending' || $b['status'] == 'confirmed') && $appointmentDateTime >= time();
+    // Show pending or confirmed appointments regardless of date
+    return ($b['status'] == 'pending' || $b['status'] == 'confirmed');
 });
 $completed = array_filter($bookings, function($b) {
     return $b['status'] == 'completed';
 });
 $cancelled = array_filter($bookings, function($b) {
-    $appointmentDateTime = strtotime($b['appointment_date'] . ' ' . $b['appointment_time']);
-    return $b['status'] == 'cancelled' || ($appointmentDateTime < time() && ($b['status'] == 'pending' || $b['status'] == 'confirmed'));
+    // Only show appointments that are actually cancelled
+    return $b['status'] == 'cancelled';
 });
 ?>
 <!DOCTYPE html>
@@ -195,7 +195,6 @@ $cancelled = array_filter($bookings, function($b) {
                         <?php endif; ?>
                         <div class="actions">
                             <button class="danger" onclick="cancelBooking(<?php echo $booking['id']; ?>)">Cancel</button>
-                            <button onclick="rescheduleBooking(<?php echo $booking['id']; ?>)">Reschedule</button>
                         </div>
                     </div>
                 <?php endforeach; ?>
@@ -252,11 +251,6 @@ $cancelled = array_filter($bookings, function($b) {
                                 </svg>
                                 <span style="font-size: 14px; font-weight: 600;"><?php echo date('g:i A', strtotime($booking['appointment_time'])); ?></span>
                             </div>
-                        </div>
-                        <div class="actions">
-                            <?php if ($booking['appointment_type'] == 'doctor'): ?>
-                            <button onclick="addReview(<?php echo $booking['id']; ?>)">Add Review</button>
-                            <?php endif; ?>
                         </div>
                     </div>
                 <?php endforeach; ?>
@@ -343,38 +337,117 @@ $cancelled = array_filter($bookings, function($b) {
         document.getElementById(tab + '-tab').classList.add('active');
     }
 
-    async function cancelBooking(id) {
-        if (!confirm('Are you sure you want to cancel this appointment?')) return;
+    let currentCancelId = null;
+
+    function cancelBooking(id) {
+        currentCancelId = id;
+        document.getElementById('cancelModal').style.display = 'flex';
+        document.getElementById('cancelReason').value = '';
+        document.getElementById('cancelDetails').value = '';
+    }
+
+    function closeCancelModal() {
+        document.getElementById('cancelModal').style.display = 'none';
+        currentCancelId = null;
+    }
+
+    async function submitCancellation() {
+        const reason = document.getElementById('cancelReason').value;
+        const details = document.getElementById('cancelDetails').value;
+        
+        if (!reason) {
+            alert('Please select a cancellation reason');
+            return;
+        }
+        
+        const submitBtn = document.getElementById('submitCancelBtn');
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Cancelling...';
         
         try {
             const response = await fetch('api/manage-booking.php', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ action: 'cancel', id: id })
+                body: JSON.stringify({ 
+                    action: 'cancel', 
+                    id: currentCancelId,
+                    cancel_reason: reason,
+                    cancel_details: details
+                })
             });
             
             const data = await response.json();
             
             if (data.success) {
-                location.reload();
+                closeCancelModal();
+                showSuccessModal();
             } else {
                 alert('Error cancelling appointment: ' + (data.message || 'Unknown error'));
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Cancel Appointment';
             }
         } catch (error) {
             console.error('Error:', error);
             alert('Error cancelling appointment');
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Cancel Appointment';
         }
     }
-
-    function rescheduleBooking(id) {
-        // TODO: Implement reschedule functionality
-        alert('Reschedule functionality coming soon!');
+    
+    function showSuccessModal() {
+        document.getElementById('successModal').style.display = 'flex';
+        setTimeout(() => {
+            location.reload();
+        }, 2000);
     }
-
-    function addReview(id) {
-        // TODO: Implement review functionality
-        alert('Review functionality coming soon!');
+    
+    function closeSuccessModal() {
+        document.getElementById('successModal').style.display = 'none';
+        location.reload();
     }
     </script>
+    
+    <!-- Cancellation Modal -->
+    <div id="cancelModal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 9999; align-items: center; justify-content: center;">
+        <div style="background: white; border-radius: 16px; padding: 24px; max-width: 400px; width: 90%; margin: 20px;">
+            <h3 style="font-size: 20px; font-weight: 700; margin-bottom: 16px;">Cancel Appointment</h3>
+            <p style="font-size: 14px; color: var(--text-secondary); margin-bottom: 20px;">Please select a reason for cancelling this appointment:</p>
+            
+            <select id="cancelReason" style="width: 100%; padding: 12px; font-size: 14px; border: 1px solid var(--border-color); border-radius: 8px; margin-bottom: 16px;">
+                <option value="">Select a reason...</option>
+                <option value="Schedule Conflict">Schedule Conflict</option>
+                <option value="Personal Emergency">Personal Emergency</option>
+                <option value="Feeling Better">Feeling Better</option>
+                <option value="Financial Reasons">Financial Reasons</option>
+                <option value="Found Another Provider">Found Another Provider</option>
+                <option value="Transportation Issues">Transportation Issues</option>
+                <option value="Weather Conditions">Weather Conditions</option>
+                <option value="Other">Other</option>
+            </select>
+            
+            <textarea id="cancelDetails" placeholder="Additional details (optional)" style="width: 100%; padding: 12px; font-size: 14px; border: 1px solid var(--border-color); border-radius: 8px; margin-bottom: 16px; resize: vertical; min-height: 80px;"></textarea>
+            
+            <div style="display: flex; gap: 12px;">
+                <button onclick="closeCancelModal()" style="flex: 1; padding: 12px; background: var(--bg-tertiary); border: none; border-radius: 8px; font-weight: 600; cursor: pointer;">Go Back</button>
+                <button onclick="submitCancellation()" id="submitCancelBtn" style="flex: 1; padding: 12px; background: var(--danger-color); color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer;">Cancel Appointment</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Success Modal -->
+    <div id="successModal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 10000; align-items: center; justify-content: center;">
+        <div style="background: white; border-radius: 16px; padding: 32px; max-width: 400px; width: 90%; margin: 20px; text-align: center;">
+            <div style="width: 64px; height: 64px; background: #dcfce7; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px;">
+                <svg style="width: 32px; height: 32px; color: #16a34a;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                    <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
+            </div>
+            <h3 style="font-size: 20px; font-weight: 700; margin-bottom: 8px; color: #16a34a;">Appointment Cancelled</h3>
+            <p style="font-size: 14px; color: var(--text-secondary); margin-bottom: 24px;">Your appointment has been successfully cancelled. You will be redirected shortly.</p>
+            <button onclick="closeSuccessModal()" style="padding: 12px 24px; background: var(--primary-color); color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; width: 100%;">
+                OK
+            </button>
+        </div>
+    </div>
 </body>
 </html>

@@ -216,12 +216,33 @@ body { margin: 0; padding: 0; }
 <?php if($type=='service'): ?>
 <div style="padding: 20px; border-top: 1px solid var(--border-color);" id="purposeSection" style="display:none;">
     <h3 style="font-size:18px;font-weight:700;margin-bottom:8px;color:var(--text-primary);">Appointment Purpose</h3>
-    <textarea id="servicePurpose" class="form-control" rows="4" placeholder="Describe purpose..."></textarea>
+    <select id="servicePurpose" class="form-control" style="padding: 12px; font-size: 14px; border: 1px solid var(--border-color); border-radius: 8px; background: white;">
+        <option value="">Select purpose...</option>
+        <option value="Laboratory Test">Laboratory Test</option>
+        <option value="Radiology/Imaging">Radiology/Imaging</option>
+        <option value="Physical Therapy">Physical Therapy</option>
+        <option value="Emergency Care">Emergency Care</option>
+        <option value="Surgical Procedure">Surgical Procedure</option>
+        <option value="Follow-up Care">Follow-up Care</option>
+        <option value="Other">Other</option>
+    </select>
 </div>
 <?php else: ?>
 <div style="padding: 20px; border-top: 1px solid var(--border-color);" id="doctorPurposeSection" style="display:none;">
     <h3 style="font-size:18px;font-weight:700;margin-bottom:8px;color:var(--text-primary);">Appointment Purpose</h3>
-    <textarea id="doctorPurpose" class="form-control" rows="4" placeholder="Describe symptoms..."></textarea>
+    <select id="doctorPurpose" class="form-control" style="padding: 12px; font-size: 14px; border: 1px solid var(--border-color); border-radius: 8px; background: white;">
+        <option value="">Select reason...</option>
+        <option value="General Consultation">General Consultation</option>
+        <option value="Follow-up Visit">Follow-up Visit</option>
+        <option value="New Symptoms">New Symptoms</option>
+        <option value="Chronic Disease Management">Chronic Disease Management</option>
+        <option value="Prescription Refill">Prescription Refill</option>
+        <option value="Medical Certificate">Medical Certificate</option>
+        <option value="Second Opinion">Second Opinion</option>
+        <option value="Pre-operative Consultation">Pre-operative Consultation</option>
+        <option value="Post-operative Follow-up">Post-operative Follow-up</option>
+        <option value="Other">Other</option>
+    </select>
 </div>
 <?php endif; ?>
 

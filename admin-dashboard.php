@@ -1032,8 +1032,8 @@ $stats['total_appointments'] = $stmt->fetch()['count'];
             <h3 class="confirm-title" id="confirmTitle"></h3>
             <p class="confirm-message" id="confirmMessage"></p>
             <div class="confirm-buttons">
-                <button class="btn btn-secondary" id="confirmCancel">Cancel</button>
-                <button class="btn btn-primary" id="confirmOk">OK</button>
+                <button class="btn btn-secondary confirm-btn-cancel" id="confirmCancel">Cancel</button>
+                <button class="btn btn-primary confirm-btn-ok" id="confirmOk">OK</button>
             </div>
         </div>
     </div>
@@ -1179,10 +1179,11 @@ $stats['total_appointments'] = $stmt->fetch()['count'];
                 
                 <!-- Filters -->
                 <div class="card" style="margin-bottom: 20px;">
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px;">
                         <div>
                             <label for="filter-status">Status</label>
                             <select id="filter-status" class="form-control">
+                                <option value="">All Status</option>
                                 <option value="pending">Pending</option>
                                 <option value="confirmed">Confirmed</option>
                                 <option value="completed">Completed</option>
@@ -1194,6 +1195,19 @@ $stats['total_appointments'] = $stmt->fetch()['count'];
                             <label for="filter-date">Date</label>
                             <input type="date" id="filter-date" class="form-control">
                         </div>
+                        <div>
+                            <label for="filter-sort">Sort By</label>
+                            <select id="filter-sort" class="form-control">
+                                <option value="latest">Latest First</option>
+                                <option value="oldest">Oldest First</option>
+                                <option value="date-asc">Date (Earliest)</option>
+                                <option value="date-desc">Date (Latest)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="filter-search">Search</label>
+                            <input type="text" id="filter-search" class="form-control" placeholder="Patient name, email...">
+                        </div>
                     </div>
                 </div>
 
@@ -1203,6 +1217,10 @@ $stats['total_appointments'] = $stmt->fetch()['count'];
                         <div class="loading-spinner"></div>
                         <p>Loading appointments...</p>
                     </div>
+                </div>
+                
+                <!-- Pagination -->
+                <div id="appointments-pagination" style="display: flex; justify-content: center; align-items: center; gap: 10px; margin-top: 20px;">
                 </div>
             </section>
 
@@ -1228,6 +1246,9 @@ $stats['total_appointments'] = $stmt->fetch()['count'];
                         <p>Loading users...</p>
                     </div>
                 </div>
+                
+                <!-- Users Pagination -->
+                <div id="users-pagination" style="display: flex; justify-content: center; gap: 8px; margin-top: 20px; flex-wrap: wrap;"></div>
             </section>
 
             <!-- Doctors Section -->
@@ -2006,10 +2027,16 @@ $stats['total_appointments'] = $stmt->fetch()['count'];
             loadAllAppointments();
         }
 
+        // Pagination state
+        let currentAppointmentPage = 1;
+        const appointmentsPerPage = 4;
+
         // Load all appointments
         function loadAllAppointments() {
             const status = document.getElementById('filter-status').value;
             const date = document.getElementById('filter-date').value;
+            const sort = document.getElementById('filter-sort').value;
+            const search = document.getElementById('filter-search').value.toLowerCase();
             
             let url = 'api/admin/appointments.php?action=getAll';
             if (status) url += `&status=${status}`;
@@ -2026,23 +2053,131 @@ $stats['total_appointments'] = $stmt->fetch()['count'];
                     try {
                         const data = JSON.parse(text);
                         if (data.success) {
-                            renderAppointments(data.appointments, 'appointments-list', false);
+                            let appointments = data.appointments;
+                            
+                            // Apply search filter
+                            if (search) {
+                                appointments = appointments.filter(apt => {
+                                    return (apt.patient_name && apt.patient_name.toLowerCase().includes(search)) ||
+                                           (apt.patient_email && apt.patient_email.toLowerCase().includes(search)) ||
+                                           (apt.patient_phone && apt.patient_phone.toLowerCase().includes(search)) ||
+                                           (apt.service_name && apt.service_name.toLowerCase().includes(search)) ||
+                                           (apt.doctor_name && apt.doctor_name.toLowerCase().includes(search));
+                                });
+                            }
+                            
+                            // Apply sorting
+                            appointments = sortAppointments(appointments, sort);
+                            
+                            // Reset to first page when filters change
+                            currentAppointmentPage = 1;
+                            
+                            renderAppointmentsWithPagination(appointments);
                         } else {
                             document.getElementById('appointments-list').innerHTML = 
                                 '<div class="empty-state"><p>Error: ' + (data.message || 'Failed to load appointments') + '</p></div>';
+                            document.getElementById('appointments-pagination').innerHTML = '';
                         }
                     } catch (e) {
                         console.error('JSON parse error:', e);
                         console.error('Response text:', text);
                         document.getElementById('appointments-list').innerHTML = 
                             '<div class="empty-state"><p>Error loading appointments. Check console for details.</p></div>';
+                        document.getElementById('appointments-pagination').innerHTML = '';
                     }
                 })
                 .catch(err => {
                     console.error('Fetch error:', err);
                     document.getElementById('appointments-list').innerHTML = 
                         '<div class="empty-state"><p>Error: ' + err.message + '</p></div>';
+                    document.getElementById('appointments-pagination').innerHTML = '';
                 });
+        }
+        
+        // Sort appointments based on selected option
+        function sortAppointments(appointments, sortType) {
+            const sorted = [...appointments];
+            
+            switch(sortType) {
+                case 'latest':
+                    // Sort by created_at descending (newest first)
+                    sorted.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+                    break;
+                case 'oldest':
+                    // Sort by created_at ascending (oldest first)
+                    sorted.sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
+                    break;
+                case 'date-asc':
+                    // Sort by appointment_date ascending (earliest first)
+                    sorted.sort((a, b) => {
+                        const dateA = new Date(a.appointment_date + ' ' + a.appointment_time);
+                        const dateB = new Date(b.appointment_date + ' ' + b.appointment_time);
+                        return dateA - dateB;
+                    });
+                    break;
+                case 'date-desc':
+                    // Sort by appointment_date descending (latest first)
+                    sorted.sort((a, b) => {
+                        const dateA = new Date(a.appointment_date + ' ' + a.appointment_time);
+                        const dateB = new Date(b.appointment_date + ' ' + b.appointment_time);
+                        return dateB - dateA;
+                    });
+                    break;
+                default:
+                    // Default: latest first
+                    sorted.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+            }
+            
+            return sorted;
+        }
+
+        // Render appointments with pagination
+        function renderAppointmentsWithPagination(allAppointments) {
+            const totalPages = Math.ceil(allAppointments.length / appointmentsPerPage);
+            const startIndex = (currentAppointmentPage - 1) * appointmentsPerPage;
+            const endIndex = startIndex + appointmentsPerPage;
+            const paginatedAppointments = allAppointments.slice(startIndex, endIndex);
+            
+            renderAppointments(paginatedAppointments, 'appointments-list', false);
+            renderPagination(totalPages, currentAppointmentPage, 'appointments-pagination', (page) => {
+                currentAppointmentPage = page;
+                renderAppointmentsWithPagination(allAppointments);
+            });
+        }
+
+        // Generic pagination renderer
+        function renderPagination(totalPages, currentPage, containerId, onPageChange) {
+            const container = document.getElementById(containerId);
+            
+            if (totalPages <= 1) {
+                container.innerHTML = '';
+                return;
+            }
+            
+            let paginationHTML = `
+                <button class="btn btn-sm btn-secondary" ${currentPage === 1 ? 'disabled' : ''} 
+                    onclick="changePage(${currentPage - 1}, '${containerId}')">
+                    Previous
+                </button>
+                <span style="padding: 0 16px;">Page ${currentPage} of ${totalPages}</span>
+                <button class="btn btn-sm btn-secondary" ${currentPage === totalPages ? 'disabled' : ''} 
+                    onclick="changePage(${currentPage + 1}, '${containerId}')">
+                    Next
+                </button>
+            `;
+            
+            container.innerHTML = paginationHTML;
+            
+            // Store the callback for this pagination
+            window[`pageChangeCallback_${containerId}`] = onPageChange;
+        }
+
+        // Page change handler
+        function changePage(page, containerId) {
+            const callback = window[`pageChangeCallback_${containerId}`];
+            if (callback) {
+                callback(page);
+            }
         }
 
         // Render appointments
@@ -2066,46 +2201,64 @@ $stats['total_appointments'] = $stmt->fetch()['count'];
                                 📅 ${formatDate(apt.appointment_date)} at ${apt.appointment_time}
                             </div>
                             ${apt.patient_email ? `<div style="font-size: 12px; color: var(--text-light); margin-top: 4px;">📧 ${apt.patient_email}</div>` : ''}
+                            ${apt.status === 'cancelled' && apt.cancel_reason ? `
+                                <div style="margin-top: 8px; padding: 8px; background: #fef2f2; border-left: 3px solid #ef4444; border-radius: 4px;">
+                                    <div style="font-size: 12px; font-weight: 600; color: #dc2626; margin-bottom: 4px;">Cancellation Reason:</div>
+                                    <div style="font-size: 12px; color: #991b1b;">${apt.cancel_reason}</div>
+                                    ${apt.cancel_details ? `<div style="font-size: 11px; color: #7f1d1d; margin-top: 4px; font-style: italic;">"${apt.cancel_details}"</div>` : ''}
+                                </div>
+                            ` : ''}
                         </div>
                         <div style="text-align: right;">
                             <span class="badge badge-${getStatusColor(apt.status)}">${apt.status}</span>
-                            ${!isCompact && apt.status !== 'archived' && apt.status !== 'cancelled' ? `
+                            ${!isCompact && apt.status !== 'archived' ? `
                                 <div style="margin-top: 8px; display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end;">
-                                    ${apt.status === 'pending' ? `
-                                        <button onclick="updateAppointmentStatus(${apt.id}, 'confirmed')" class="btn btn-sm btn-success">
+                                    ${apt.status === 'cancelled' ? `
+                                        <button data-action="archive" data-id="${apt.id}" class="btn btn-sm btn-archive appointment-action-btn">
                                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                                <polyline points="20 6 9 17 4 12"></polyline>
+                                                <polyline points="21 8 21 21 3 21 3 8"></polyline>
+                                                <rect x="1" y="3" width="22" height="5"></rect>
+                                                <line x1="10" y1="12" x2="14" y2="12"></line>
                                             </svg>
-                                            Confirm
+                                            Archive
                                         </button>
-                                    ` : ''}
-                                    ${apt.status === 'confirmed' ? `
-                                        <button onclick="updateAppointmentStatus(${apt.id}, 'completed')" class="btn btn-sm btn-primary">
+                                    ` : `
+                                        ${apt.status === 'pending' ? `
+                                            <button data-action="confirm" data-id="${apt.id}" class="btn btn-sm btn-success appointment-action-btn">
+                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                    <polyline points="20 6 9 17 4 12"></polyline>
+                                                </svg>
+                                                Confirm
+                                            </button>
+                                        ` : ''}
+                                        ${apt.status === 'confirmed' ? `
+                                            <button data-action="complete" data-id="${apt.id}" class="btn btn-sm btn-primary appointment-action-btn">
+                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                                                    <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                                                </svg>
+                                                Complete
+                                            </button>
+                                        ` : ''}
+                                        ${apt.status !== 'completed' ? `
+                                            <button data-action="cancel" data-id="${apt.id}" class="btn btn-sm btn-danger appointment-action-btn">
+                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                    <circle cx="12" cy="12" r="10"></circle>
+                                                    <line x1="15" y1="9" x2="9" y2="15"></line>
+                                                    <line x1="9" y1="9" x2="15" y2="15"></line>
+                                                </svg>
+                                                Cancel
+                                            </button>
+                                        ` : ''}
+                                        <button data-action="archive" data-id="${apt.id}" class="btn btn-sm btn-archive appointment-action-btn">
                                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
-                                                <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                                                <polyline points="21 8 21 21 3 21 3 8"></polyline>
+                                                <rect x="1" y="3" width="22" height="5"></rect>
+                                                <line x1="10" y1="12" x2="14" y2="12"></line>
                                             </svg>
-                                            Complete
+                                            Archive
                                         </button>
-                                    ` : ''}
-                                    ${apt.status !== 'completed' && apt.status !== 'cancelled' ? `
-                                        <button onclick="updateAppointmentStatus(${apt.id}, 'cancelled')" class="btn btn-sm btn-danger">
-                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                                <circle cx="12" cy="12" r="10"></circle>
-                                                <line x1="15" y1="9" x2="9" y2="15"></line>
-                                                <line x1="9" y1="9" x2="15" y2="15"></line>
-                                            </svg>
-                                            Cancel
-                                        </button>
-                                    ` : ''}
-                                    <button onclick="archiveAppointment(${apt.id})" class="btn btn-sm btn-archive">
-                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                            <polyline points="21 8 21 21 3 21 3 8"></polyline>
-                                            <rect x="1" y="3" width="22" height="5"></rect>
-                                            <line x1="10" y1="12" x2="14" y2="12"></line>
-                                        </svg>
-                                        Archive
-                                    </button>
+                                    `}
                                 </div>
                             ` : ''}
                         </div>
@@ -2113,6 +2266,10 @@ $stats['total_appointments'] = $stmt->fetch()['count'];
                 </div>
             `).join('');
         }
+
+        // Pagination state for users
+        let currentUserPage = 1;
+        const usersPerPage = 5;
 
         // Load users
         function loadUsers() {
@@ -2127,35 +2284,51 @@ $stats['total_appointments'] = $stmt->fetch()['count'];
                     try {
                         const data = JSON.parse(text);
                         if (data.success) {
+                            allUsers = data.users; // Store globally for pagination
+                            currentUserPage = 1; // Reset to first page
                             renderUsers(data.users);
                         } else {
                             document.getElementById('users-list').innerHTML = 
                                 '<div class="empty-state"><p>Error: ' + (data.message || 'Failed to load users') + '</p></div>';
+                            document.getElementById('users-pagination').innerHTML = '';
                         }
                     } catch (e) {
                         console.error('JSON parse error:', e);
                         console.error('Response text:', text);
                         document.getElementById('users-list').innerHTML = 
                             '<div class="empty-state"><p>Error loading users. Check console for details.</p></div>';
+                        document.getElementById('users-pagination').innerHTML = '';
                     }
                 })
                 .catch(err => {
                     console.error('Fetch error:', err);
                     document.getElementById('users-list').innerHTML = 
                         '<div class="empty-state"><p>Error: ' + err.message + '</p></div>';
+                    document.getElementById('users-pagination').innerHTML = '';
                 });
         }
 
-        // Render users
+        // Render users with pagination
         function renderUsers(users) {
             const container = document.getElementById('users-list');
             
             if (users.length === 0) {
                 container.innerHTML = '<div class="empty-state"><p>No users found</p></div>';
+                document.getElementById('users-pagination').innerHTML = '';
                 return;
             }
             
-            container.innerHTML = users.map(user => `
+            renderUsersWithPagination(users);
+        }
+        
+        function renderUsersWithPagination(users) {
+            const container = document.getElementById('users-list');
+            const totalPages = Math.ceil(users.length / usersPerPage);
+            const startIndex = (currentUserPage - 1) * usersPerPage;
+            const endIndex = startIndex + usersPerPage;
+            const paginatedUsers = users.slice(startIndex, endIndex);
+            
+            container.innerHTML = paginatedUsers.map(user => `
                 <div class="card" style="margin-bottom: 12px;">
                     <div style="display: flex; justify-content: space-between; align-items: start;">
                         <div>
@@ -2186,7 +2359,57 @@ $stats['total_appointments'] = $stmt->fetch()['count'];
                     </div>
                 </div>
             `).join('');
+            
+            // Render pagination controls
+            const paginationContainer = document.getElementById('users-pagination');
+            if (totalPages > 1) {
+                let paginationHTML = '';
+                
+                // Previous button
+                paginationHTML += `
+                    <button onclick="changeUserPage(${currentUserPage - 1})" 
+                            class="btn btn-sm" 
+                            ${currentUserPage === 1 ? 'disabled' : ''}
+                            style="padding: 8px 12px; ${currentUserPage === 1 ? 'opacity: 0.5; cursor: not-allowed;' : ''}">
+                        ← Previous
+                    </button>
+                `;
+                
+                // Page numbers
+                for (let i = 1; i <= totalPages; i++) {
+                    paginationHTML += `
+                        <button onclick="changeUserPage(${i})" 
+                                class="btn btn-sm ${i === currentUserPage ? 'btn-primary' : ''}" 
+                                style="padding: 8px 12px; min-width: 40px;">
+                            ${i}
+                        </button>
+                    `;
+                }
+                
+                // Next button
+                paginationHTML += `
+                    <button onclick="changeUserPage(${currentUserPage + 1})" 
+                            class="btn btn-sm" 
+                            ${currentUserPage === totalPages ? 'disabled' : ''}
+                            style="padding: 8px 12px; ${currentUserPage === totalPages ? 'opacity: 0.5; cursor: not-allowed;' : ''}">
+                        Next →
+                    </button>
+                `;
+                
+                paginationContainer.innerHTML = paginationHTML;
+            } else {
+                paginationContainer.innerHTML = '';
+            }
         }
+        
+        function changeUserPage(page) {
+            const totalPages = Math.ceil(allUsers.length / usersPerPage);
+            if (page < 1 || page > totalPages) return;
+            currentUserPage = page;
+            renderUsersWithPagination(allUsers);
+        }
+        
+        let allUsers = [];
 
         // Load doctors
         function loadDoctors() {
@@ -2541,9 +2764,43 @@ $stats['total_appointments'] = $stmt->fetch()['count'];
             return colors[status] || 'gray';
         }
 
+        // Event delegation for appointment action buttons
+        document.getElementById('appointments-list').addEventListener('click', function(e) {
+            const btn = e.target.closest('.appointment-action-btn');
+            if (!btn) return;
+            
+            e.preventDefault(); // Prevent any default behavior
+            
+            const action = btn.dataset.action;
+            const id = btn.dataset.id;
+            
+            console.log('Appointment action clicked:', action, 'ID:', id); // Debug logging
+            
+            if (action === 'archive') {
+                archiveAppointment(id);
+            } else if (action === 'confirm') {
+                updateAppointmentStatus(id, 'confirmed');
+            } else if (action === 'complete') {
+                updateAppointmentStatus(id, 'completed');
+            } else if (action === 'cancel') {
+                updateAppointmentStatus(id, 'cancelled');
+            }
+        });
+
         // Filter listeners
         document.getElementById('filter-status').addEventListener('change', loadAllAppointments);
         document.getElementById('filter-date').addEventListener('change', loadAllAppointments);
+        document.getElementById('filter-sort').addEventListener('change', loadAllAppointments);
+        
+        // Search filter with debounce
+        let appointmentSearchTimeout;
+        document.getElementById('filter-search').addEventListener('input', function() {
+            clearTimeout(appointmentSearchTimeout);
+            appointmentSearchTimeout = setTimeout(() => {
+                loadAllAppointments();
+            }, 300);
+        });
+        
         document.getElementById('log-from-date').addEventListener('change', () => loadLogData('appointment-history'));
         document.getElementById('log-to-date').addEventListener('change', () => loadLogData('appointment-history'));
 
@@ -3364,7 +3621,9 @@ $stats['total_appointments'] = $stmt->fetch()['count'];
 
         // Custom Confirm Dialog System
         function showConfirm(type, title, message, onConfirm, onCancel = null) {
-            const overlay = document.querySelector('.confirm-overlay');
+            console.log('showConfirm called:', type, title); // Debug logging
+            
+            const overlay = document.getElementById('confirmOverlay');
             const dialog = overlay.querySelector('.confirm-dialog');
             
             const icons = {
@@ -3375,16 +3634,16 @@ $stats['total_appointments'] = $stmt->fetch()['count'];
             };
             
             // Update content
-            dialog.querySelector('.confirm-icon').className = `confirm-icon confirm-icon-${type}`;
-            dialog.querySelector('.confirm-icon').innerHTML = icons[type];
-            dialog.querySelector('.confirm-title').textContent = title;
-            dialog.querySelector('.confirm-message').textContent = message;
+            document.getElementById('confirmIcon').className = `confirm-icon ${type}`;
+            document.getElementById('confirmIcon').innerHTML = icons[type];
+            document.getElementById('confirmTitle').textContent = title;
+            document.getElementById('confirmMessage').textContent = message;
             
             // Setup button handlers
-            const cancelBtn = dialog.querySelector('.confirm-btn-cancel');
-            const okBtn = dialog.querySelector('.confirm-btn-ok');
+            const cancelBtn = document.getElementById('confirmCancel');
+            const okBtn = document.getElementById('confirmOk');
             
-            // Remove old listeners
+            // Remove old listeners by cloning
             const newCancelBtn = cancelBtn.cloneNode(true);
             const newOkBtn = okBtn.cloneNode(true);
             cancelBtn.replaceWith(newCancelBtn);
@@ -3401,28 +3660,22 @@ $stats['total_appointments'] = $stmt->fetch()['count'];
             });
             
             // Show overlay and dialog
-            overlay.style.display = 'flex';
-            setTimeout(() => {
-                overlay.classList.add('show');
-                dialog.classList.add('show');
-            }, 10);
+            overlay.classList.add('active');
             
             // Close on overlay click
-            overlay.addEventListener('click', (e) => {
+            const overlayClickHandler = (e) => {
                 if (e.target === overlay) {
                     hideConfirm();
                     if (onCancel) onCancel();
+                    overlay.removeEventListener('click', overlayClickHandler);
                 }
-            });
+            };
+            overlay.addEventListener('click', overlayClickHandler);
         }
 
         function hideConfirm() {
-            const overlay = document.querySelector('.confirm-overlay');
-            const dialog = overlay.querySelector('.confirm-dialog');
-            
-            overlay.classList.remove('show');
-            dialog.classList.remove('show');
-            setTimeout(() => overlay.style.display = 'none', 200);
+            const overlay = document.getElementById('confirmOverlay');
+            overlay.classList.remove('active');
         }
 
         // Load initial data
