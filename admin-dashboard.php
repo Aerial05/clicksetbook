@@ -517,43 +517,43 @@ $stats['total_appointments'] = $stmt->fetch()['count'];
 
         /* Primary Button - Blue */
         .btn-primary {
-            background: #3b82f6;
+            background: #60a5fa;
             color: white;
         }
 
         /* Success Button - Green */
         .btn-success {
-            background: #22c55e;
+            background: #4ade80;
             color: white;
         }
 
         /* Edit Button - Purple */
         .btn-edit {
-            background: #8b5cf6;
+            background: #a78bfa;
             color: white;
         }
 
         /* Archive Button - Orange */
         .btn-archive {
-            background: #f59e0b;
+            background: #fbbf24;
             color: white;
         }
 
         /* Danger Button - Red */
         .btn-danger {
-            background: #ef4444;
+            background: #f87171;
             color: white;
         }
 
         /* Secondary Button - Gray */
         .btn-secondary {
-            background: #6b7280;
+            background: #9ca3af;
             color: white;
         }
 
         /* Info Button - Cyan */
         .btn-info {
-            background: #06b6d4;
+            background: #22d3ee;
             color: white;
         }
 
@@ -939,10 +939,105 @@ $stats['total_appointments'] = $stmt->fetch()['count'];
                 max-width: 100%;
             }
         }
+
+        /* Custom Toast Notification */
+        .toast-container {
+            position: fixed;
+            top: 80px;
+            right: 24px;
+            z-index: 10000;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            pointer-events: none;
+        }
+
+        .toast {
+            background: white;
+            border-radius: 12px;
+            padding: 16px 20px;
+            min-width: 320px;
+            max-width: 400px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            pointer-events: all;
+            animation: slideInRight 0.3s ease;
+            border-left: 4px solid;
+        }
+
+        .toast.success { border-left-color: #4ade80; }
+        .toast.error { border-left-color: #f87171; }
+        .toast.warning { border-left-color: #fbbf24; }
+        .toast.info { border-left-color: #60a5fa; }
+
+        .toast-icon { width: 24px; height: 24px; flex-shrink: 0; }
+        .toast-content { flex: 1; }
+        .toast-title { font-weight: 600; font-size: 14px; color: #1f2937; margin-bottom: 2px; }
+        .toast-message { font-size: 13px; color: #6b7280; line-height: 1.4; }
+
+        .toast-close {
+            background: none; border: none; color: #9ca3af; cursor: pointer;
+            padding: 4px; display: flex; align-items: center; justify-content: center;
+            border-radius: 4px; transition: all 0.2s ease;
+        }
+        .toast-close:hover { background: #f3f4f6; color: #374151; }
+
+        @keyframes slideInRight { from { transform: translateX(400px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        @keyframes slideOutRight { from { transform: translateX(0); opacity: 1; } to { transform: translateX(400px); opacity: 0; } }
+        .toast.hiding { animation: slideOutRight 0.3s ease forwards; }
+
+        /* Custom Confirm Dialog */
+        .confirm-overlay {
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0, 0, 0, 0.4); display: none;
+            align-items: center; justify-content: center; z-index: 10001;
+            animation: fadeIn 0.2s ease;
+        }
+        .confirm-overlay.active { display: flex; }
+
+        .confirm-dialog {
+            background: white; border-radius: 16px; padding: 24px;
+            max-width: 400px; width: 90%; animation: scaleIn 0.2s ease;
+        }
+
+        .confirm-icon {
+            width: 48px; height: 48px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            margin: 0 auto 16px; font-size: 24px;
+        }
+        .confirm-icon.warning { background: #fef3c7; color: #f59e0b; }
+        .confirm-icon.danger { background: #fee2e2; color: #ef4444; }
+        .confirm-icon.info { background: #dbeafe; color: #3b82f6; }
+        .confirm-icon.success { background: #d1fae5; color: #22c55e; }
+
+        .confirm-title { font-size: 18px; font-weight: 600; color: #1f2937; text-align: center; margin-bottom: 8px; }
+        .confirm-message { font-size: 14px; color: #6b7280; text-align: center; line-height: 1.5; margin-bottom: 24px; }
+        .confirm-buttons { display: flex; gap: 12px; }
+        .confirm-buttons button { flex: 1; }
+
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes scaleIn { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
     </style>
     </style>
 </head>
 <body>
+    <!-- Toast Container -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- Confirm Dialog -->
+    <div class="confirm-overlay" id="confirmOverlay">
+        <div class="confirm-dialog">
+            <div class="confirm-icon" id="confirmIcon"></div>
+            <h3 class="confirm-title" id="confirmTitle"></h3>
+            <p class="confirm-message" id="confirmMessage"></p>
+            <div class="confirm-buttons">
+                <button class="btn btn-secondary" id="confirmCancel">Cancel</button>
+                <button class="btn btn-primary" id="confirmOk">OK</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Sidebar Overlay -->
     <div class="sidebar-overlay" id="sidebarOverlay"></div>
 
@@ -1182,6 +1277,26 @@ $stats['total_appointments'] = $stmt->fetch()['count'];
                     </div>
                     <form id="addDoctorForm">
                         <div style="display: grid; gap: 16px;">
+                            <!-- Profile Image Upload -->
+                            <div>
+                                <label class="form-label">Profile Picture</label>
+                                <div style="display: flex; align-items: center; gap: 16px;">
+                                    <div id="add_doctor_image_preview" style="width: 80px; height: 80px; border-radius: 50%; background: #e5e7eb; display: flex; align-items: center; justify-content: center; overflow: hidden;">
+                                        <span style="font-size: 32px; color: #9ca3af;">DR</span>
+                                    </div>
+                                    <div style="flex: 1;">
+                                        <input type="file" id="add_doctor_image_input" accept="image/*" style="display: none;">
+                                        <button type="button" class="btn btn-sm btn-secondary" onclick="document.getElementById('add_doctor_image_input').click()">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
+                                                <circle cx="12" cy="13" r="4"></circle>
+                                            </svg>
+                                            Select Photo
+                                        </button>
+                                        <p style="font-size: 12px; color: #6b7280; margin-top: 4px;">JPG, PNG, GIF or WebP (Max 5MB)</p>
+                                    </div>
+                                </div>
+                            </div>
                             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
                                 <div>
                                     <label class="form-label">First Name *</label>
@@ -1257,6 +1372,26 @@ $stats['total_appointments'] = $stmt->fetch()['count'];
                     <form id="editDoctorForm">
                         <input type="hidden" id="edit_doctor_id" name="id">
                         <div style="display: grid; gap: 16px;">
+                            <!-- Profile Image Upload -->
+                            <div>
+                                <label class="form-label">Profile Picture</label>
+                                <div style="display: flex; align-items: center; gap: 16px;">
+                                    <div id="edit_doctor_image_preview" style="width: 80px; height: 80px; border-radius: 50%; background: #e5e7eb; display: flex; align-items: center; justify-content: center; overflow: hidden;">
+                                        <span style="font-size: 32px; color: #9ca3af;">DR</span>
+                                    </div>
+                                    <div style="flex: 1;">
+                                        <input type="file" id="edit_doctor_image_input" accept="image/*" style="display: none;">
+                                        <button type="button" class="btn btn-sm btn-secondary" onclick="document.getElementById('edit_doctor_image_input').click()">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
+                                                <circle cx="12" cy="13" r="4"></circle>
+                                            </svg>
+                                            Change Photo
+                                        </button>
+                                        <p style="font-size: 12px; color: #6b7280; margin-top: 4px;">JPG, PNG, GIF or WebP (Max 5MB)</p>
+                                    </div>
+                                </div>
+                            </div>
                             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
                                 <div>
                                     <label class="form-label">First Name *</label>
@@ -2199,14 +2334,14 @@ $stats['total_appointments'] = $stmt->fetch()['count'];
                 const result = await response.json();
                 
                 if (result.success) {
-                    alert('Doctor photo updated successfully!');
+                    showToast('success', 'Success', 'Doctor photo updated successfully!');
                     loadDoctors(); // Reload to show new image
                 } else {
-                    alert('Error: ' + result.message);
+                    showToast('error', 'Error', result.message);
                 }
             } catch (error) {
                 console.error('Upload error:', error);
-                alert('Failed to upload photo. Please try again.');
+                showToast('error', 'Error', 'Failed to upload photo. Please try again.');
             }
         }
 
@@ -2349,30 +2484,30 @@ $stats['total_appointments'] = $stmt->fetch()['count'];
 
         // Update appointment status
         function updateAppointmentStatus(id, status) {
-            if (!confirm(`Are you sure you want to ${status} this appointment?`)) return;
-            
-            const formData = new FormData();
-            formData.append('action', 'updateStatus');
-            formData.append('id', id);
-            formData.append('status', status);
-            
-            fetch('api/admin/appointments.php', {
-                method: 'POST',
-                credentials: 'same-origin',
-                body: formData
-            })
-            .then(r => r.json())
-            .then(data => {
-                if (data.success) {
-                    loadAllAppointments();
-                    alert('Appointment updated successfully!');
-                } else {
-                    alert(data.message || 'Failed to update appointment');
-                }
-            })
-            .catch(err => {
-                console.error('Update appointment error:', err);
-                alert('An error occurred while updating the appointment.');
+            showConfirm('info', `${status.charAt(0).toUpperCase() + status.slice(1)} Appointment?`, `Are you sure you want to ${status} this appointment?`, () => {
+                const formData = new FormData();
+                formData.append('action', 'updateStatus');
+                formData.append('id', id);
+                formData.append('status', status);
+                
+                fetch('api/admin/appointments.php', {
+                    method: 'POST',
+                    credentials: 'same-origin',
+                    body: formData
+                })
+                .then(r => r.json())
+                .then(data => {
+                    if (data.success) {
+                        loadAllAppointments();
+                        showToast('success', 'Success', 'Appointment updated successfully!');
+                    } else {
+                        showToast('error', 'Error', data.message || 'Failed to update appointment');
+                    }
+                })
+                .catch(err => {
+                    console.error('Update appointment error:', err);
+                    showToast('error', 'Error', 'An error occurred while updating the appointment.');
+                });
             });
         }
 
@@ -2429,12 +2564,12 @@ $stats['total_appointments'] = $stmt->fetch()['count'];
         // Form submissions
         document.getElementById('business-hours-form').addEventListener('submit', function(e) {
             e.preventDefault();
-            alert('Business hours settings saved!');
+            showToast('success', 'Saved', 'Business hours settings saved!');
         });
 
         document.getElementById('notification-settings-form').addEventListener('submit', function(e) {
             e.preventDefault();
-            alert('Notification settings saved!');
+            showToast('success', 'Saved', 'Notification settings saved!');
         });
 
         // User Management Functions
@@ -2517,16 +2652,16 @@ $stats['total_appointments'] = $stmt->fetch()['count'];
             .then(r => r.json())
             .then(data => {
                 if (data.success) {
-                    alert('User updated successfully!');
+                    showToast('success', 'Success', 'User updated successfully!');
                     closeEditUserModal();
                     loadUsers();
                 } else {
-                    alert('Error: ' + (data.message || 'Failed to update user'));
+                    showToast('error', 'Error', data.message || 'Failed to update user');
                 }
             })
             .catch(err => {
                 console.error('Error:', err);
-                alert('An error occurred while updating the user.');
+                showToast('error', 'Error', 'An error occurred while updating the user.');
             });
         }
         
@@ -2535,31 +2670,29 @@ $stats['total_appointments'] = $stmt->fetch()['count'];
         }
         
         function archiveUser(id) {
-            if (!confirm('Are you sure you want to archive this user? They will no longer be able to access their account.')) {
-                return;
-            }
-            
-            const formData = new FormData();
-            formData.append('action', 'delete');
-            formData.append('id', id);
-            
-            fetch('api/admin/users.php', {
-                method: 'POST',
-                credentials: 'same-origin',
-                body: formData
-            })
-            .then(r => r.json())
-            .then(data => {
-                if (data.success) {
-                    alert('User archived successfully!');
-                    loadUsers(); // Reload users list
-                } else {
-                    alert('Error: ' + (data.message || 'Failed to archive user'));
-                }
-            })
-            .catch(err => {
-                console.error('Archive user error:', err);
-                alert('An error occurred while archiving the user.');
+            showConfirm('warning', 'Archive User?', 'They will no longer be able to access their account.', () => {
+                const formData = new FormData();
+                formData.append('action', 'delete');
+                formData.append('id', id);
+                
+                fetch('api/admin/users.php', {
+                    method: 'POST',
+                    credentials: 'same-origin',
+                    body: formData
+                })
+                .then(r => r.json())
+                .then(data => {
+                    if (data.success) {
+                        showToast('success', 'Archived', 'User archived successfully!');
+                        loadUsers(); // Reload users list
+                    } else {
+                        showToast('error', 'Error', data.message || 'Failed to archive user');
+                    }
+                })
+                .catch(err => {
+                    console.error('Archive user error:', err);
+                    showToast('error', 'Error', 'An error occurred while archiving the user.');
+                });
             });
         }
 
@@ -2601,6 +2734,8 @@ $stats['total_appointments'] = $stmt->fetch()['count'];
         function closeAddDoctorModal() {
             document.getElementById('addDoctorModal').style.display = 'none';
             document.getElementById('addDoctorForm').reset();
+            // Reset image preview
+            document.getElementById('add_doctor_image_preview').innerHTML = '<span style="font-size: 32px; color: #9ca3af;">DR</span>';
         }
         
         function editDoctor(id) {
@@ -2626,15 +2761,24 @@ $stats['total_appointments'] = $stmt->fetch()['count'];
                         document.getElementById('edit_bio').value = doctor.bio || '';
                         document.getElementById('edit_is_available').checked = doctor.is_available == 1;
                         
+                        // Load profile image
+                        const imagePreview = document.getElementById('edit_doctor_image_preview');
+                        if (doctor.profile_image && doctor.profile_image !== 'null' && doctor.profile_image !== '') {
+                            imagePreview.innerHTML = `<img src="${doctor.profile_image}" style="width: 100%; height: 100%; object-fit: cover;">`;
+                        } else {
+                            const initials = ((doctor.first_name || '').charAt(0) + (doctor.last_name || '').charAt(0)).toUpperCase() || 'DR';
+                            imagePreview.innerHTML = `<span style="font-size: 32px; color: #9ca3af;">${initials}</span>`;
+                        }
+                        
                         // Show modal
                         document.getElementById('editDoctorModal').style.display = 'flex';
                     } else {
-                        alert('Error: Could not load doctor data');
+                        showToast('error', 'Error', 'Could not load doctor data');
                     }
                 })
                 .catch(err => {
                     console.error('Error loading doctor:', err);
-                    alert('An error occurred while loading doctor data.');
+                    showToast('error', 'Error', 'An error occurred while loading doctor data.');
                 });
         }
 
@@ -2644,31 +2788,29 @@ $stats['total_appointments'] = $stmt->fetch()['count'];
         }
         
         function archiveDoctor(id) {
-            if (!confirm('Are you sure you want to archive this doctor? This will disable their account and they will no longer appear in active listings.')) {
-                return;
-            }
-            
-            const formData = new FormData();
-            formData.append('action', 'delete');
-            formData.append('id', id);
-            
-            fetch('api/admin/doctors.php', {
-                method: 'POST',
-                credentials: 'same-origin',
-                body: formData
-            })
-            .then(r => r.json())
-            .then(data => {
-                if (data.success) {
-                    alert('Doctor archived successfully!');
-                    loadDoctors(); // Reload doctors list
-                } else {
-                    alert('Error: ' + (data.message || 'Failed to archive doctor'));
-                }
-            })
-            .catch(err => {
-                console.error('Archive doctor error:', err);
-                alert('An error occurred while archiving the doctor.');
+            showConfirm('warning', 'Archive Doctor?', 'This will disable their account and they will no longer appear in active listings.', () => {
+                const formData = new FormData();
+                formData.append('action', 'delete');
+                formData.append('id', id);
+                
+                fetch('api/admin/doctors.php', {
+                    method: 'POST',
+                    credentials: 'same-origin',
+                    body: formData
+                })
+                .then(r => r.json())
+                .then(data => {
+                    if (data.success) {
+                        showToast('success', 'Archived', 'Doctor archived successfully!');
+                        loadDoctors(); // Reload doctors list
+                    } else {
+                        showToast('error', 'Error', data.message || 'Failed to archive doctor');
+                    }
+                })
+                .catch(err => {
+                    console.error('Archive doctor error:', err);
+                    showToast('error', 'Error', 'An error occurred while archiving the doctor.');
+                });
             });
         }
         
@@ -2683,95 +2825,89 @@ $stats['total_appointments'] = $stmt->fetch()['count'];
         }
         
         function editService(id) {
-            alert('Edit Service #' + id + ' - Loading...');
+            showToast('info', 'Loading', 'Edit Service #' + id + ' - Loading...');
             // TODO: Implement edit service modal with API call to fetch service data
         }
         
         function archiveService(id) {
-            if (!confirm('Are you sure you want to archive this service? It will no longer be available for new bookings.')) {
-                return;
-            }
-            
-            const formData = new FormData();
-            formData.append('action', 'delete');
-            formData.append('id', id);
-            
-            fetch('api/admin/services.php', {
-                method: 'POST',
-                credentials: 'same-origin',
-                body: formData
-            })
-            .then(r => r.json())
-            .then(data => {
-                if (data.success) {
-                    alert('Service archived successfully!');
-                    loadServices(); // Reload services list
-                } else {
-                    alert('Error: ' + (data.message || 'Failed to archive service'));
-                }
-            })
-            .catch(err => {
-                console.error('Archive service error:', err);
-                alert('An error occurred while archiving the service.');
+            showConfirm('warning', 'Archive Service?', 'It will no longer be available for new bookings.', () => {
+                const formData = new FormData();
+                formData.append('action', 'delete');
+                formData.append('id', id);
+                
+                fetch('api/admin/services.php', {
+                    method: 'POST',
+                    credentials: 'same-origin',
+                    body: formData
+                })
+                .then(r => r.json())
+                .then(data => {
+                    if (data.success) {
+                        showToast('success', 'Archived', 'Service archived successfully!');
+                        loadServices(); // Reload services list
+                    } else {
+                        showToast('error', 'Error', data.message || 'Failed to archive service');
+                    }
+                })
+                .catch(err => {
+                    console.error('Archive service error:', err);
+                    showToast('error', 'Error', 'An error occurred while archiving the service.');
+                });
             });
         }
         
         function toggleServiceActive(id) {
-            if (!confirm('Are you sure you want to toggle this service status?')) {
-                return;
-            }
-            
-            const formData = new FormData();
-            formData.append('action', 'toggleActive');
-            formData.append('id', id);
-            
-            fetch('api/admin/services.php', {
-                method: 'POST',
-                credentials: 'same-origin',
-                body: formData
-            })
-            .then(r => r.json())
-            .then(data => {
-                if (data.success) {
-                    alert('Service status updated successfully!');
-                    loadServices(); // Reload services list
-                } else {
-                    alert('Error: ' + (data.message || 'Failed to update service status'));
-                }
-            })
-            .catch(err => {
-                console.error('Toggle service error:', err);
-                alert('An error occurred while updating the service status.');
+            showConfirm('info', 'Toggle Service Status?', 'This will change the service availability.', () => {
+                const formData = new FormData();
+                formData.append('action', 'toggleActive');
+                formData.append('id', id);
+                
+                fetch('api/admin/services.php', {
+                    method: 'POST',
+                    credentials: 'same-origin',
+                    body: formData
+                })
+                .then(r => r.json())
+                .then(data => {
+                    if (data.success) {
+                        showToast('success', 'Success', 'Service status updated successfully!');
+                        loadServices(); // Reload services list
+                    } else {
+                        showToast('error', 'Error', data.message || 'Failed to update service status');
+                    }
+                })
+                .catch(err => {
+                    console.error('Toggle service error:', err);
+                    showToast('error', 'Error', 'An error occurred while updating the service status.');
+                });
             });
         }
         
         // Appointment Management Functions
         function archiveAppointment(id) {
-            if (!confirm('Are you sure you want to archive this appointment?')) {
-                return;
-            }
-            
-            const formData = new FormData();
-            formData.append('action', 'archive');
-            formData.append('id', id);
-            
-            fetch('api/admin/appointments.php', {
-                method: 'POST',
-                credentials: 'same-origin',
-                body: formData
-            })
-            .then(r => r.json())
-            .then(data => {
-                if (data.success) {
-                    alert('Appointment archived successfully!');
-                    loadAppointments(); // Reload appointments list
-                } else {
-                    alert('Error: ' + (data.message || 'Failed to archive appointment'));
-                }
-            })
-            .catch(err => {
-                console.error('Archive appointment error:', err);
-                alert('An error occurred while archiving the appointment.');
+            showConfirm('warning', 'Archive Appointment?', 'This appointment will be moved to archives.', () => {
+                const formData = new FormData();
+                formData.append('action', 'archive');
+                formData.append('id', id);
+                
+                fetch('api/admin/appointments.php', {
+                    method: 'POST',
+                    credentials: 'same-origin',
+                    body: formData
+                })
+                .then(r => r.json())
+                .then(data => {
+                    if (data.success) {
+                        showToast('success', 'Archived', 'Appointment archived successfully!');
+                        loadAppointments(); // Reload appointments list
+                    } else {
+                        showToast('error', 'Error', data.message || 'Failed to archive appointment');
+                    }
+                })
+                .catch(err => {
+                    console.error('Archive appointment error:', err);
+                    showToast('error', 'Error', 'An error occurred while archiving the appointment.');
+                });
             });
         }
 
@@ -2837,15 +2973,15 @@ $stats['total_appointments'] = $stmt->fetch()['count'];
                 const result = await response.json();
                 
                 if (result.success) {
-                    alert('Profile updated successfully!');
+                    showToast('success', 'Success', 'Profile updated successfully!');
                     // Update the display name in the topnav
                     location.reload();
                 } else {
-                    alert('Error: ' + result.message);
+                    showToast('error', 'Error', result.message);
                 }
             } catch (error) {
                 console.error('Error updating profile:', error);
-                alert('An error occurred while updating your profile. Please try again.');
+                showToast('error', 'Error', 'An error occurred while updating your profile. Please try again.');
             } finally {
                 submitBtn.disabled = false;
                 submitBtn.textContent = originalText;
@@ -2860,7 +2996,7 @@ $stats['total_appointments'] = $stmt->fetch()['count'];
             
             // Validate passwords match
             if (formData.get('new_password') !== formData.get('confirm_password')) {
-                alert('New passwords do not match!');
+                showToast('error', 'Error', 'New passwords do not match!');
                 return;
             }
             
@@ -2878,14 +3014,14 @@ $stats['total_appointments'] = $stmt->fetch()['count'];
                 const result = await response.json();
                 
                 if (result.success) {
-                    alert('Password updated successfully!');
+                    showToast('success', 'Success', 'Password updated successfully!');
                     this.reset();
                 } else {
-                    alert('Error: ' + result.message);
+                    showToast('error', 'Error', result.message);
                 }
             } catch (error) {
                 console.error('Error changing password:', error);
-                alert('An error occurred while changing your password. Please try again.');
+                showToast('error', 'Error', 'An error occurred while changing your password. Please try again.');
             } finally {
                 submitBtn.disabled = false;
                 submitBtn.textContent = originalText;
@@ -2904,9 +3040,9 @@ $stats['total_appointments'] = $stmt->fetch()['count'];
 
         // Logout Confirmation
         function confirmLogout() {
-            if (confirm('Are you sure you want to logout?')) {
+            showConfirm('info', 'Logout?', 'Are you sure you want to logout?', () => {
                 window.location.href = 'logout.php';
-            }
+            });
         }
 
         // Add Doctor Form Submission
@@ -2931,16 +3067,37 @@ $stats['total_appointments'] = $stmt->fetch()['count'];
                 
                 if (result.success) {
                     const doctorName = formData.get('first_name') + ' ' + formData.get('last_name');
+                    
+                    // Upload profile image if selected
+                    const imageInput = document.getElementById('add_doctor_image_input');
+                    const doctorId = result.doctor_id || result.id; // Get the newly created doctor ID
+                    
+                    if (imageInput.files && imageInput.files[0] && doctorId) {
+                        const imageFormData = new FormData();
+                        imageFormData.append('doctor_image', imageInput.files[0]);
+                        imageFormData.append('doctor_id', doctorId);
+                        
+                        const imageResponse = await fetch('api/admin/upload-doctor-image.php', {
+                            method: 'POST',
+                            body: imageFormData
+                        });
+                        
+                        const imageResult = await imageResponse.json();
+                        if (!imageResult.success) {
+                            console.error('Image upload failed:', imageResult.message);
+                        }
+                    }
+                    
                     const message = result.message || `Doctor ${doctorName} added successfully!`;
-                    alert(message);
+                    showToast('success', 'Success', message);
                     closeAddDoctorModal();
                     loadDoctors(); // Reload doctors list
                 } else {
-                    alert('Error: ' + result.message);
+                    showToast('error', 'Error', result.message);
                 }
             } catch (error) {
                 console.error('Error adding doctor:', error);
-                alert('An error occurred while adding the doctor. Please try again.');
+                showToast('error', 'Error', 'An error occurred while adding the doctor. Please try again.');
             } finally {
                 submitBtn.disabled = false;
                 submitBtn.textContent = 'Add Doctor';
@@ -2959,6 +3116,7 @@ $stats['total_appointments'] = $stmt->fetch()['count'];
             submitBtn.textContent = 'Updating...';
             
             try {
+                // First update doctor info
                 const response = await fetch('api/admin/doctors.php', {
                     method: 'POST',
                     credentials: 'same-origin',
@@ -2968,15 +3126,35 @@ $stats['total_appointments'] = $stmt->fetch()['count'];
                 const result = await response.json();
                 
                 if (result.success) {
-                    alert(result.message || 'Doctor updated successfully!');
+                    // Then upload image if selected
+                    const imageInput = document.getElementById('edit_doctor_image_input');
+                    const doctorId = document.getElementById('edit_doctor_id').value;
+                    
+                    if (imageInput.files && imageInput.files[0]) {
+                        const imageFormData = new FormData();
+                        imageFormData.append('doctor_image', imageInput.files[0]);
+                        imageFormData.append('doctor_id', doctorId);
+                        
+                        const imageResponse = await fetch('api/admin/upload-doctor-image.php', {
+                            method: 'POST',
+                            body: imageFormData
+                        });
+                        
+                        const imageResult = await imageResponse.json();
+                        if (!imageResult.success) {
+                            console.error('Image upload failed:', imageResult.message);
+                        }
+                    }
+                    
+                    showToast('success', 'Success', result.message || 'Doctor updated successfully!');
                     closeEditDoctorModal();
                     loadDoctors(); // Reload doctors list
                 } else {
-                    alert('Error: ' + result.message);
+                    showToast('error', 'Error', result.message);
                 }
             } catch (error) {
                 console.error('Error updating doctor:', error);
-                alert('An error occurred while updating the doctor. Please try again.');
+                showToast('error', 'Error', 'An error occurred while updating the doctor. Please try again.');
             } finally {
                 submitBtn.disabled = false;
                 submitBtn.textContent = 'Update Doctor';
@@ -3005,15 +3183,15 @@ $stats['total_appointments'] = $stmt->fetch()['count'];
                 
                 if (result.success) {
                     const serviceName = formData.get('name');
-                    alert(`Service "${serviceName}" added successfully!`);
+                    showToast('success', 'Success', `Service "${serviceName}" added successfully!`);
                     closeAddServiceModal();
                     loadServices(); // Reload services list
                 } else {
-                    alert('Error: ' + result.message);
+                    showToast('error', 'Error', result.message);
                 }
             } catch (error) {
                 console.error('Error adding service:', error);
-                alert('An error occurred while adding the service. Please try again.');
+                showToast('error', 'Error', 'An error occurred while adding the service. Please try again.');
             } finally {
                 submitBtn.disabled = false;
                 submitBtn.textContent = 'Add Service';
@@ -3042,15 +3220,15 @@ $stats['total_appointments'] = $stmt->fetch()['count'];
                 
                 if (result.success) {
                     const username = formData.get('username');
-                    alert(`User "${username}" added successfully!`);
+                    showToast('success', 'Success', `User "${username}" added successfully!`);
                     closeAddUserModal();
                     loadUsers(); // Reload users list
                 } else {
-                    alert('Error: ' + result.message);
+                    showToast('error', 'Error', result.message);
                 }
             } catch (error) {
                 console.error('Error adding user:', error);
-                alert('An error occurred while adding the user. Please try again.');
+                showToast('error', 'Error', 'An error occurred while adding the user. Please try again.');
             } finally {
                 submitBtn.disabled = false;
                 submitBtn.textContent = 'Add User';
@@ -3067,52 +3245,185 @@ $stats['total_appointments'] = $stmt->fetch()['count'];
             const currentRole = document.getElementById('changeRoleCurrentRole').textContent.toLowerCase();
             
             if (!newRole) {
-                alert('Please select a new role');
+                showToast('warning', 'Warning', 'Please select a new role');
                 return;
             }
             
             if (newRole === currentRole) {
-                alert('User already has this role.');
+                showToast('info', 'Info', 'User already has this role.');
                 return;
             }
             
-            if (!confirm(`Are you sure you want to change ${userName}'s role to "${newRole}"?`)) {
-                return;
-            }
-            
-            const submitBtn = this.querySelector('button[type="submit"]');
-            submitBtn.disabled = true;
-            submitBtn.textContent = 'Changing...';
-            
-            try {
-                const formData = new FormData();
-                formData.append('action', 'changeRole');
-                formData.append('id', userId);
-                formData.append('role', newRole);
-                
-                const response = await fetch('api/admin/users.php', {
-                    method: 'POST',
-                    credentials: 'same-origin',
-                    body: formData
-                });
-                
-                const result = await response.json();
-                
-                if (result.success) {
-                    alert(result.message || 'User role changed successfully!');
-                    closeChangeRoleModal();
-                    loadUsers(); // Reload users list
-                } else {
-                    alert('Error: ' + result.message);
-                }
-            } catch (error) {
-                console.error('Error changing role:', error);
-                alert('An error occurred while changing the user role. Please try again.');
-            } finally {
-                submitBtn.disabled = false;
-                submitBtn.textContent = 'Change Role';
+            showConfirm('info', 'Change Role?', `Are you sure you want to change ${userName}'s role to "${newRole}"?`, () => {
+                (async () => {
+                    const submitBtn = this.querySelector('button[type="submit"]');
+                    submitBtn.disabled = true;
+                    submitBtn.textContent = 'Changing...';
+                    
+                    try {
+                        const formData = new FormData();
+                        formData.append('action', 'changeRole');
+                        formData.append('id', userId);
+                        formData.append('role', newRole);
+                        
+                        const response = await fetch('api/admin/users.php', {
+                            method: 'POST',
+                            credentials: 'same-origin',
+                            body: formData
+                        });
+                        
+                        const result = await response.json();
+                        
+                        if (result.success) {
+                            showToast('success', 'Success', result.message || 'User role changed successfully!');
+                            closeChangeRoleModal();
+                            loadUsers(); // Reload users list
+                        } else {
+                            showToast('error', 'Error', result.message);
+                        }
+                    } catch (error) {
+                        console.error('Error changing role:', error);
+                        showToast('error', 'Error', 'An error occurred while changing the user role. Please try again.');
+                    } finally {
+                        submitBtn.disabled = false;
+                        submitBtn.textContent = 'Change Role';
+                    }
+                })();
+            });
+        });
+
+        // Image preview for edit doctor modal
+        document.getElementById('edit_doctor_image_input').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    document.getElementById('edit_doctor_image_preview').innerHTML = 
+                        `<img src="${event.target.result}" style="width: 100%; height: 100%; object-fit: cover;">`;
+                };
+                reader.readAsDataURL(file);
             }
         });
+
+        // Image preview for add doctor modal
+        document.getElementById('add_doctor_image_input').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    document.getElementById('add_doctor_image_preview').innerHTML = 
+                        `<img src="${event.target.result}" style="width: 100%; height: 100%; object-fit: cover;">`;
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // Custom Toast Notification System
+        function showToast(type, title, message = '', duration = 3000) {
+            const container = document.querySelector('.toast-container');
+            const toast = document.createElement('div');
+            toast.className = `toast toast-${type}`;
+            
+            const icons = {
+                success: '<svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M16.667 5L7.5 14.167 3.333 10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+                error: '<svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M15 5L5 15M5 5l10 10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+                warning: '<svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M10 6v4m0 4h.01M8.618 2.243a1.5 1.5 0 012.764 0l7.5 16A1.5 1.5 0 0117.5 21h-15a1.5 1.5 0 01-1.382-2.757l7.5-16z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+                info: '<svg width="20" height="20" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="8" stroke="currentColor" stroke-width="2"/><path d="M10 10v4m0-8h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>'
+            };
+            
+            toast.innerHTML = `
+                <div class="toast-icon">${icons[type]}</div>
+                <div class="toast-content">
+                    <div class="toast-title">${title}</div>
+                    ${message ? `<div class="toast-message">${message}</div>` : ''}
+                </div>
+                <button class="toast-close">×</button>
+            `;
+            
+            container.appendChild(toast);
+            
+            // Trigger animation
+            setTimeout(() => toast.classList.add('show'), 10);
+            
+            // Close button handler
+            const closeBtn = toast.querySelector('.toast-close');
+            closeBtn.addEventListener('click', () => hideToast(toast));
+            
+            // Auto-hide after duration
+            if (duration > 0) {
+                setTimeout(() => hideToast(toast), duration);
+            }
+            
+            return toast;
+        }
+
+        function hideToast(toastElement) {
+            toastElement.classList.remove('show');
+            setTimeout(() => toastElement.remove(), 300);
+        }
+
+        // Custom Confirm Dialog System
+        function showConfirm(type, title, message, onConfirm, onCancel = null) {
+            const overlay = document.querySelector('.confirm-overlay');
+            const dialog = overlay.querySelector('.confirm-dialog');
+            
+            const icons = {
+                warning: '<svg width="48" height="48" viewBox="0 0 48 48" fill="none"><path d="M24 16v8m0 8h.02M19.237 8.486a5 5 0 019.526 0l13.5 36A5 5 0 0137.5 52h-27a5 5 0 01-4.763-7.514l13.5-36z" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+                danger: '<svg width="48" height="48" viewBox="0 0 48 48" fill="none"><circle cx="24" cy="24" r="20" stroke="currentColor" stroke-width="3"/><path d="M30 18L18 30M18 18l12 12" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg>',
+                info: '<svg width="48" height="48" viewBox="0 0 48 48" fill="none"><circle cx="24" cy="24" r="20" stroke="currentColor" stroke-width="3"/><path d="M24 24v8m0-16h.02" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg>',
+                success: '<svg width="48" height="48" viewBox="0 0 48 48" fill="none"><circle cx="24" cy="24" r="20" stroke="currentColor" stroke-width="3"/><path d="M32 18L20 30l-6-6" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>'
+            };
+            
+            // Update content
+            dialog.querySelector('.confirm-icon').className = `confirm-icon confirm-icon-${type}`;
+            dialog.querySelector('.confirm-icon').innerHTML = icons[type];
+            dialog.querySelector('.confirm-title').textContent = title;
+            dialog.querySelector('.confirm-message').textContent = message;
+            
+            // Setup button handlers
+            const cancelBtn = dialog.querySelector('.confirm-btn-cancel');
+            const okBtn = dialog.querySelector('.confirm-btn-ok');
+            
+            // Remove old listeners
+            const newCancelBtn = cancelBtn.cloneNode(true);
+            const newOkBtn = okBtn.cloneNode(true);
+            cancelBtn.replaceWith(newCancelBtn);
+            okBtn.replaceWith(newOkBtn);
+            
+            newCancelBtn.addEventListener('click', () => {
+                hideConfirm();
+                if (onCancel) onCancel();
+            });
+            
+            newOkBtn.addEventListener('click', () => {
+                hideConfirm();
+                if (onConfirm) onConfirm();
+            });
+            
+            // Show overlay and dialog
+            overlay.style.display = 'flex';
+            setTimeout(() => {
+                overlay.classList.add('show');
+                dialog.classList.add('show');
+            }, 10);
+            
+            // Close on overlay click
+            overlay.addEventListener('click', (e) => {
+                if (e.target === overlay) {
+                    hideConfirm();
+                    if (onCancel) onCancel();
+                }
+            });
+        }
+
+        function hideConfirm() {
+            const overlay = document.querySelector('.confirm-overlay');
+            const dialog = overlay.querySelector('.confirm-dialog');
+            
+            overlay.classList.remove('show');
+            dialog.classList.remove('show');
+            setTimeout(() => overlay.style.display = 'none', 200);
+        }
 
         // Load initial data
         loadRecentAppointments();

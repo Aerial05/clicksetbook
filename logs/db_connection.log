@@ -24068,3 +24068,630 @@ Status: SUCCESS
 Connection Time: 10.69ms
 Server Version: 10.4.32-MariaDB
 Client Version: mysqlnd 8.2.12
+
+[2025-11-21 12:43:24] Database Connection Attempt
+Environment: LOCAL
+Host: localhost
+Database: u112535700_u112535700_
+User: root
+DSN: mysql:host=localhost;dbname=u112535700_u112535700_
+Status: SUCCESS
+Connection Time: 0.95ms
+Server Version: 10.4.32-MariaDB
+Client Version: mysqlnd 8.2.12
+
+[2025-11-21 12:43:24] Database Connection Attempt
+Environment: LOCAL
+Host: localhost
+Database: u112535700_u112535700_
+User: root
+DSN: mysql:host=localhost;dbname=u112535700_u112535700_
+Status: SUCCESS
+Connection Time: 0.51ms
+Server Version: 10.4.32-MariaDB
+Client Version: mysqlnd 8.2.12
+
+[2025-11-21 12:43:24] Database Connection Attempt
+Environment: LOCAL
+Host: localhost
+Database: u112535700_u112535700_
+User: root
+DSN: mysql:host=localhost;dbname=u112535700_u112535700_
+Status: SUCCESS
+Connection Time: 19.69ms
+Server Version: 10.4.32-MariaDB
+Client Version: mysqlnd 8.2.12
+
+[2025-11-21 12:43:26] Database Connection Attempt
+Environment: LOCAL
+Host: localhost
+Database: u112535700_u112535700_
+User: root
+DSN: mysql:host=localhost;dbname=u112535700_u112535700_
+Status: SUCCESS
+Connection Time: 0.84ms
+Server Version: 10.4.32-MariaDB
+Client Version: mysqlnd 8.2.12
+
+[2025-11-21 12:44:03] Database Connection Attempt
+Environment: LOCAL
+Host: localhost
+Database: u112535700_u112535700_
+User: root
+DSN: mysql:host=localhost;dbname=u112535700_u112535700_
+Status: SUCCESS
+Connection Time: 0.76ms
+Server Version: 10.4.32-MariaDB
+Client Version: mysqlnd 8.2.12
+
+[2025-11-21 12:44:03] Database Connection Attempt
+Environment: LOCAL
+Host: localhost
+Database: u112535700_u112535700_
+User: root
+DSN: mysql:host=localhost;dbname=u112535700_u112535700_
+Status: SUCCESS
+Connection Time: 0.48ms
+Server Version: 10.4.32-MariaDB
+Client Version: mysqlnd 8.2.12
+
+[2025-11-21 12:44:03] Database Connection Attempt
+Environment: LOCAL
+Host: localhost
+Database: u112535700_u112535700_
+User: root
+DSN: mysql:host=localhost;dbname=u112535700_u112535700_
+Status: SUCCESS
+Connection Time: 0.95ms
+Server Version: 10.4.32-MariaDB
+Client Version: mysqlnd 8.2.12
+
+[2025-11-21 12:44:05] Database Connection Attempt
+Environment: LOCAL
+Host: localhost
+Database: u112535700_u112535700_
+User: root
+DSN: mysql:host=localhost;dbname=u112535700_u112535700_
+Status: SUCCESS
+Connection Time: 22.91ms
+Server Version: 10.4.32-MariaDB
+Client Version: mysqlnd 8.2.12
+
+[2025-11-21 12:44:06] Database Connection Attempt
+Environment: LOCAL
+Host: localhost
+Database: u112535700_u112535700_
+User: root
+DSN: mysql:host=localhost;dbname=u112535700_u112535700_
+Status: SUCCESS
+Connection Time: 10.42ms
+Server Version: 10.4.32-MariaDB
+Client Version: mysqlnd 8.2.12
+
+[2025-11-21 12:44:08] Database Connection Attempt
+Environment: LOCAL
+Host: localhost
+Database: u112535700_u112535700_
+User: root
+DSN: mysql:host=localhost;dbname=u112535700_u112535700_
+Status: SUCCESS
+Connection Time: 0.76ms
+Server Version: 10.4.32-MariaDB
+Client Version: mysqlnd 8.2.12
+
+[2025-11-21 12:44:12] Database Connection Attempt
+Environment: LOCAL
+Host: localhost
+Database: u112535700_u112535700_
+User: root
+DSN: mysql:host=localhost;dbname=u112535700_u112535700_
+Status: SUCCESS
+Connection Time: 0.99ms
+Server Version: 10.4.32-MariaDB
+Client Version: mysqlnd 8.2.12
+
+[2025-11-21 12:44:17] Database Connection Attempt
+Environment: LOCAL
+Host: localhost
+Database: u112535700_u112535700_
+User: root
+DSN: mysql:host=localhost;dbname=u112535700_u112535700_
+Status: SUCCESS
+Connection Time: 0.72ms
+Server Version: 10.4.32-MariaDB
+Client Version: mysqlnd 8.2.12
+
+[2025-11-21 12:44:18] Database Connection Attempt
+Environment: LOCAL
+Host: localhost
+Database: u112535700_u112535700_
+User: root
+DSN: mysql:host=localhost;dbname=u112535700_u112535700_
+Status: SUCCESS
+Connection Time: 22.65ms
+Server Version: 10.4.32-MariaDB
+Client Version: mysqlnd 8.2.12
+
+[2025-11-21 12:46:06] Database Connection Attempt
+Environment: LOCAL
+Host: localhost
+Database: u112535700_u112535700_
+User: root
+DSN: mysql:host=localhost;dbname=u112535700_u112535700_
+Status: SUCCESS
+Connection Time: 0.89ms
+Server Version: 10.4.32-MariaDB
+Client Version: mysqlnd 8.2.12
+
+[2025-11-21 12:46:07] Database Connection Attempt
+Environment: LOCAL
+Host: localhost
+Database: u112535700_u112535700_
+User: root
+DSN: mysql:host=localhost;dbname=u112535700_u112535700_
+Status: SUCCESS
+Connection Time: 0.82ms
+Server Version: 10.4.32-MariaDB
+Client Version: mysqlnd 8.2.12
+
+[2025-11-21 12:46:07] Database Connection Attempt
+Environment: LOCAL
+Host: localhost
+Database: u112535700_u112535700_
+User: root
+DSN: mysql:host=localhost;dbname=u112535700_u112535700_
+Status: SUCCESS
+Connection Time: 0.6ms
+Server Version: 10.4.32-MariaDB
+Client Version: mysqlnd 8.2.12
+
+[2025-11-21 12:46:07] Database Connection Attempt
+Environment: LOCAL
+Host: localhost
+Database: u112535700_u112535700_
+User: root
+DSN: mysql:host=localhost;dbname=u112535700_u112535700_
+Status: SUCCESS
+Connection Time: 18.24ms
+Server Version: 10.4.32-MariaDB
+Client Version: mysqlnd 8.2.12
+
+[2025-11-21 12:46:09] Database Connection Attempt
+Environment: LOCAL
+Host: localhost
+Database: u112535700_u112535700_
+User: root
+DSN: mysql:host=localhost;dbname=u112535700_u112535700_
+Status: SUCCESS
+Connection Time: 0.73ms
+Server Version: 10.4.32-MariaDB
+Client Version: mysqlnd 8.2.12
+
+[2025-11-21 12:46:10] Database Connection Attempt
+Environment: LOCAL
+Host: localhost
+Database: u112535700_u112535700_
+User: root
+DSN: mysql:host=localhost;dbname=u112535700_u112535700_
+Status: SUCCESS
+Connection Time: 0.72ms
+Server Version: 10.4.32-MariaDB
+Client Version: mysqlnd 8.2.12
+
+[2025-11-21 12:47:57] Database Connection Attempt
+Environment: LOCAL
+Host: localhost
+Database: u112535700_u112535700_
+User: root
+DSN: mysql:host=localhost;dbname=u112535700_u112535700_
+Status: SUCCESS
+Connection Time: 1.07ms
+Server Version: 10.4.32-MariaDB
+Client Version: mysqlnd 8.2.12
+
+[2025-11-21 12:47:57] Database Connection Attempt
+Environment: LOCAL
+Host: localhost
+Database: u112535700_u112535700_
+User: root
+DSN: mysql:host=localhost;dbname=u112535700_u112535700_
+Status: SUCCESS
+Connection Time: 0.68ms
+Server Version: 10.4.32-MariaDB
+Client Version: mysqlnd 8.2.12
+
+[2025-11-21 12:47:57] Database Connection Attempt
+Environment: LOCAL
+Host: localhost
+Database: u112535700_u112535700_
+User: root
+DSN: mysql:host=localhost;dbname=u112535700_u112535700_
+Status: SUCCESS
+Connection Time: 1.09ms
+Server Version: 10.4.32-MariaDB
+Client Version: mysqlnd 8.2.12
+
+[2025-11-21 12:47:59] Database Connection Attempt
+Environment: LOCAL
+Host: localhost
+Database: u112535700_u112535700_
+User: root
+DSN: mysql:host=localhost;dbname=u112535700_u112535700_
+Status: SUCCESS
+Connection Time: 0.77ms
+Server Version: 10.4.32-MariaDB
+Client Version: mysqlnd 8.2.12
+
+[2025-11-21 12:50:01] Database Connection Attempt
+Environment: LOCAL
+Host: localhost
+Database: u112535700_u112535700_
+User: root
+DSN: mysql:host=localhost;dbname=u112535700_u112535700_
+Status: SUCCESS
+Connection Time: 0.75ms
+Server Version: 10.4.32-MariaDB
+Client Version: mysqlnd 8.2.12
+
+[2025-11-21 12:58:37] Database Connection Attempt
+Environment: LOCAL
+Host: localhost
+Database: u112535700_u112535700_
+User: root
+DSN: mysql:host=localhost;dbname=u112535700_u112535700_
+Status: SUCCESS
+Connection Time: 1.25ms
+Server Version: 10.4.32-MariaDB
+Client Version: mysqlnd 8.2.12
+
+[2025-11-21 12:58:41] Database Connection Attempt
+Environment: LOCAL
+Host: localhost
+Database: u112535700_u112535700_
+User: root
+DSN: mysql:host=localhost;dbname=u112535700_u112535700_
+Status: SUCCESS
+Connection Time: 0.78ms
+Server Version: 10.4.32-MariaDB
+Client Version: mysqlnd 8.2.12
+
+[2025-11-21 12:58:43] Database Connection Attempt
+Environment: LOCAL
+Host: localhost
+Database: u112535700_u112535700_
+User: root
+DSN: mysql:host=localhost;dbname=u112535700_u112535700_
+Status: SUCCESS
+Connection Time: 0.83ms
+Server Version: 10.4.32-MariaDB
+Client Version: mysqlnd 8.2.12
+
+[2025-11-21 12:58:46] Database Connection Attempt
+Environment: LOCAL
+Host: localhost
+Database: u112535700_u112535700_
+User: root
+DSN: mysql:host=localhost;dbname=u112535700_u112535700_
+Status: SUCCESS
+Connection Time: 0.89ms
+Server Version: 10.4.32-MariaDB
+Client Version: mysqlnd 8.2.12
+
+[2025-11-21 13:01:06] Database Connection Attempt
+Environment: LOCAL
+Host: localhost
+Database: u112535700_u112535700_
+User: root
+DSN: mysql:host=localhost;dbname=u112535700_u112535700_
+Status: SUCCESS
+Connection Time: 12.9ms
+Server Version: 10.4.32-MariaDB
+Client Version: mysqlnd 8.2.12
+
+[2025-11-21 13:01:06] Database Connection Attempt
+Environment: LOCAL
+Host: localhost
+Database: u112535700_u112535700_
+User: root
+DSN: mysql:host=localhost;dbname=u112535700_u112535700_
+Status: SUCCESS
+Connection Time: 0.6ms
+Server Version: 10.4.32-MariaDB
+Client Version: mysqlnd 8.2.12
+
+[2025-11-21 13:01:06] Database Connection Attempt
+Environment: LOCAL
+Host: localhost
+Database: u112535700_u112535700_
+User: root
+DSN: mysql:host=localhost;dbname=u112535700_u112535700_
+Status: SUCCESS
+Connection Time: 0.97ms
+Server Version: 10.4.32-MariaDB
+Client Version: mysqlnd 8.2.12
+
+[2025-11-21 13:01:06] Database Connection Attempt
+Environment: LOCAL
+Host: localhost
+Database: u112535700_u112535700_
+User: root
+DSN: mysql:host=localhost;dbname=u112535700_u112535700_
+Status: SUCCESS
+Connection Time: 13.15ms
+Server Version: 10.4.32-MariaDB
+Client Version: mysqlnd 8.2.12
+
+[2025-11-21 13:01:06] Database Connection Attempt
+Environment: LOCAL
+Host: localhost
+Database: u112535700_u112535700_
+User: root
+DSN: mysql:host=localhost;dbname=u112535700_u112535700_
+Status: SUCCESS
+Connection Time: 14.38ms
+Server Version: 10.4.32-MariaDB
+Client Version: mysqlnd 8.2.12
+
+[2025-11-21 13:01:06] Database Connection Attempt
+Environment: LOCAL
+Host: localhost
+Database: u112535700_u112535700_
+User: root
+DSN: mysql:host=localhost;dbname=u112535700_u112535700_
+Status: SUCCESS
+Connection Time: 25.71ms
+Server Version: 10.4.32-MariaDB
+Client Version: mysqlnd 8.2.12
+
+[2025-11-21 13:01:08] Database Connection Attempt
+Environment: LOCAL
+Host: localhost
+Database: u112535700_u112535700_
+User: root
+DSN: mysql:host=localhost;dbname=u112535700_u112535700_
+Status: SUCCESS
+Connection Time: 0.9ms
+Server Version: 10.4.32-MariaDB
+Client Version: mysqlnd 8.2.12
+
+[2025-11-21 13:01:11] Database Connection Attempt
+Environment: LOCAL
+Host: localhost
+Database: u112535700_u112535700_
+User: root
+DSN: mysql:host=localhost;dbname=u112535700_u112535700_
+Status: SUCCESS
+Connection Time: 0.73ms
+Server Version: 10.4.32-MariaDB
+Client Version: mysqlnd 8.2.12
+
+[2025-11-21 13:01:13] Database Connection Attempt
+Environment: LOCAL
+Host: localhost
+Database: u112535700_u112535700_
+User: root
+DSN: mysql:host=localhost;dbname=u112535700_u112535700_
+Status: SUCCESS
+Connection Time: 0.96ms
+Server Version: 10.4.32-MariaDB
+Client Version: mysqlnd 8.2.12
+
+[2025-11-21 13:01:18] Database Connection Attempt
+Environment: LOCAL
+Host: localhost
+Database: u112535700_u112535700_
+User: root
+DSN: mysql:host=localhost;dbname=u112535700_u112535700_
+Status: SUCCESS
+Connection Time: 11.04ms
+Server Version: 10.4.32-MariaDB
+Client Version: mysqlnd 8.2.12
+
+[2025-11-21 13:02:08] Database Connection Attempt
+Environment: LOCAL
+Host: localhost
+Database: u112535700_u112535700_
+User: root
+DSN: mysql:host=localhost;dbname=u112535700_u112535700_
+Status: SUCCESS
+Connection Time: 0.82ms
+Server Version: 10.4.32-MariaDB
+Client Version: mysqlnd 8.2.12
+
+[2025-11-21 13:02:08] Database Connection Attempt
+Environment: LOCAL
+Host: localhost
+Database: u112535700_u112535700_
+User: root
+DSN: mysql:host=localhost;dbname=u112535700_u112535700_
+Status: SUCCESS
+Connection Time: 15.02ms
+Server Version: 10.4.32-MariaDB
+Client Version: mysqlnd 8.2.12
+
+[2025-11-21 13:02:08] Database Connection Attempt
+Environment: LOCAL
+Host: localhost
+Database: u112535700_u112535700_
+User: root
+DSN: mysql:host=localhost;dbname=u112535700_u112535700_
+Status: SUCCESS
+Connection Time: 11.62ms
+Server Version: 10.4.32-MariaDB
+Client Version: mysqlnd 8.2.12
+
+[2025-11-21 13:02:10] Database Connection Attempt
+Environment: LOCAL
+Host: localhost
+Database: u112535700_u112535700_
+User: root
+DSN: mysql:host=localhost;dbname=u112535700_u112535700_
+Status: SUCCESS
+Connection Time: 20.72ms
+Server Version: 10.4.32-MariaDB
+Client Version: mysqlnd 8.2.12
+
+[2025-11-21 13:02:43] Database Connection Attempt
+Environment: LOCAL
+Host: localhost
+Database: u112535700_u112535700_
+User: root
+DSN: mysql:host=localhost;dbname=u112535700_u112535700_
+Status: SUCCESS
+Connection Time: 11.9ms
+Server Version: 10.4.32-MariaDB
+Client Version: mysqlnd 8.2.12
+
+[2025-11-21 13:02:47] Database Connection Attempt
+Environment: LOCAL
+Host: localhost
+Database: u112535700_u112535700_
+User: root
+DSN: mysql:host=localhost;dbname=u112535700_u112535700_
+Status: SUCCESS
+Connection Time: 0.69ms
+Server Version: 10.4.32-MariaDB
+Client Version: mysqlnd 8.2.12
+
+[2025-11-21 13:02:52] Database Connection Attempt
+Environment: LOCAL
+Host: localhost
+Database: u112535700_u112535700_
+User: root
+DSN: mysql:host=localhost;dbname=u112535700_u112535700_
+Status: SUCCESS
+Connection Time: 0.66ms
+Server Version: 10.4.32-MariaDB
+Client Version: mysqlnd 8.2.12
+
+[2025-11-21 13:03:42] Database Connection Attempt
+Environment: LOCAL
+Host: localhost
+Database: u112535700_u112535700_
+User: root
+DSN: mysql:host=localhost;dbname=u112535700_u112535700_
+Status: SUCCESS
+Connection Time: 1.02ms
+Server Version: 10.4.32-MariaDB
+Client Version: mysqlnd 8.2.12
+
+[2025-11-21 13:03:43] Database Connection Attempt
+Environment: LOCAL
+Host: localhost
+Database: u112535700_u112535700_
+User: root
+DSN: mysql:host=localhost;dbname=u112535700_u112535700_
+Status: SUCCESS
+Connection Time: 0.74ms
+Server Version: 10.4.32-MariaDB
+Client Version: mysqlnd 8.2.12
+
+[2025-11-21 13:03:43] Database Connection Attempt
+Environment: LOCAL
+Host: localhost
+Database: u112535700_u112535700_
+User: root
+DSN: mysql:host=localhost;dbname=u112535700_u112535700_
+Status: SUCCESS
+Connection Time: 15.88ms
+Server Version: 10.4.32-MariaDB
+Client Version: mysqlnd 8.2.12
+
+[2025-11-21 13:03:43] Database Connection Attempt
+Environment: LOCAL
+Host: localhost
+Database: u112535700_u112535700_
+User: root
+DSN: mysql:host=localhost;dbname=u112535700_u112535700_
+Status: SUCCESS
+Connection Time: 1.08ms
+Server Version: 10.4.32-MariaDB
+Client Version: mysqlnd 8.2.12
+
+[2025-11-21 13:03:45] Database Connection Attempt
+Environment: LOCAL
+Host: localhost
+Database: u112535700_u112535700_
+User: root
+DSN: mysql:host=localhost;dbname=u112535700_u112535700_
+Status: SUCCESS
+Connection Time: 0.8ms
+Server Version: 10.4.32-MariaDB
+Client Version: mysqlnd 8.2.12
+
+[2025-11-21 13:03:52] Database Connection Attempt
+Environment: LOCAL
+Host: localhost
+Database: u112535700_u112535700_
+User: root
+DSN: mysql:host=localhost;dbname=u112535700_u112535700_
+Status: SUCCESS
+Connection Time: 23.57ms
+Server Version: 10.4.32-MariaDB
+Client Version: mysqlnd 8.2.12
+
+[2025-11-21 13:03:55] Database Connection Attempt
+Environment: LOCAL
+Host: localhost
+Database: u112535700_u112535700_
+User: root
+DSN: mysql:host=localhost;dbname=u112535700_u112535700_
+Status: SUCCESS
+Connection Time: 0.7ms
+Server Version: 10.4.32-MariaDB
+Client Version: mysqlnd 8.2.12
+
+[2025-11-21 13:03:55] Database Connection Attempt
+Environment: LOCAL
+Host: localhost
+Database: u112535700_u112535700_
+User: root
+DSN: mysql:host=localhost;dbname=u112535700_u112535700_
+Status: SUCCESS
+Connection Time: 0.71ms
+Server Version: 10.4.32-MariaDB
+Client Version: mysqlnd 8.2.12
+
+[2025-11-21 13:03:58] Database Connection Attempt
+Environment: LOCAL
+Host: localhost
+Database: u112535700_u112535700_
+User: root
+DSN: mysql:host=localhost;dbname=u112535700_u112535700_
+Status: SUCCESS
+Connection Time: 0.75ms
+Server Version: 10.4.32-MariaDB
+Client Version: mysqlnd 8.2.12
+
+[2025-11-21 13:04:00] Database Connection Attempt
+Environment: LOCAL
+Host: localhost
+Database: u112535700_u112535700_
+User: root
+DSN: mysql:host=localhost;dbname=u112535700_u112535700_
+Status: SUCCESS
+Connection Time: 0.71ms
+Server Version: 10.4.32-MariaDB
+Client Version: mysqlnd 8.2.12
+
+[2025-11-21 13:04:04] Database Connection Attempt
+Environment: LOCAL
+Host: localhost
+Database: u112535700_u112535700_
+User: root
+DSN: mysql:host=localhost;dbname=u112535700_u112535700_
+Status: SUCCESS
+Connection Time: 24.85ms
+Server Version: 10.4.32-MariaDB
+Client Version: mysqlnd 8.2.12
+
+[2025-11-21 13:04:04] Database Connection Attempt
+Environment: LOCAL
+Host: localhost
+Database: u112535700_u112535700_
+User: root
+DSN: mysql:host=localhost;dbname=u112535700_u112535700_
+Status: SUCCESS
+Connection Time: 0.94ms
+Server Version: 10.4.32-MariaDB
+Client Version: mysqlnd 8.2.12
