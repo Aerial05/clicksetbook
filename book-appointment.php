@@ -183,6 +183,66 @@ body { margin: 0; padding: 0; }
     </div>
 </div>
 
+<!-- Purpose Section - Moved to top -->
+<?php if($type=='service'): ?>
+<div style="padding: 20px; border-bottom: 1px solid var(--border-color); background: var(--bg-secondary); display: none;" id="purposeSection">
+    <div style="max-width: 600px; margin: 0 auto;">
+        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
+            <svg style="width: 20px; height: 20px; color: var(--primary-color);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M9 11l3 3L22 4"></path>
+                <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
+            </svg>
+            <h3 style="font-size:18px;font-weight:700;margin:0;color:var(--text-primary);">Appointment Purpose</h3>
+        </div>
+        <div style="position: relative;">
+            <select id="servicePurpose" class="form-control" style="padding: 14px 40px 14px 16px; font-size: 15px; border: 2px solid var(--border-color); border-radius: 12px; background: white; cursor: pointer; appearance: none; width: 100%; transition: all 0.3s; font-weight: 500;" onfocus="this.style.borderColor='var(--primary-color)'; this.style.boxShadow='0 0 0 3px rgba(79, 70, 229, 0.1)';" onblur="this.style.borderColor='var(--border-color)'; this.style.boxShadow='none';">
+                <option value="" style="color: #9ca3af;">Select purpose...</option>
+                <option value="Laboratory Test">🔬 Laboratory Test</option>
+                <option value="Radiology/Imaging">📊 Radiology/Imaging</option>
+                <option value="Physical Therapy">💪 Physical Therapy</option>
+                <option value="Emergency Care">🚨 Emergency Care</option>
+                <option value="Surgical Procedure">🏥 Surgical Procedure</option>
+                <option value="Follow-up Care">📋 Follow-up Care</option>
+                <option value="Other">📝 Other</option>
+            </select>
+            <svg style="position: absolute; right: 16px; top: 50%; transform: translateY(-50%); width: 16px; height: 16px; color: var(--text-light); pointer-events: none;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="6 9 12 15 18 9"></polyline>
+            </svg>
+        </div>
+    </div>
+</div>
+<?php else: ?>
+<div style="padding: 20px; border-bottom: 1px solid var(--border-color); background: var(--bg-secondary); display: none;" id="doctorPurposeSection">
+    <div style="max-width: 600px; margin: 0 auto;">
+        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
+            <svg style="width: 20px; height: 20px; color: var(--primary-color);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M9 11l3 3L22 4"></path>
+                <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
+            </svg>
+            <h3 style="font-size:18px;font-weight:700;margin:0;color:var(--text-primary);">Appointment Purpose</h3>
+        </div>
+        <div style="position: relative;">
+            <select id="doctorPurpose" class="form-control" style="padding: 14px 40px 14px 16px; font-size: 15px; border: 2px solid var(--border-color); border-radius: 12px; background: white; cursor: pointer; appearance: none; width: 100%; transition: all 0.3s; font-weight: 500;" onfocus="this.style.borderColor='var(--primary-color)'; this.style.boxShadow='0 0 0 3px rgba(79, 70, 229, 0.1)';" onblur="this.style.borderColor='var(--border-color)'; this.style.boxShadow='none';">
+                <option value="" style="color: #9ca3af;">Select reason...</option>
+                <option value="General Consultation">👨‍⚕️ General Consultation</option>
+                <option value="Follow-up Visit">📅 Follow-up Visit</option>
+                <option value="New Symptoms">🩺 New Symptoms</option>
+                <option value="Chronic Disease Management">💊 Chronic Disease Management</option>
+                <option value="Prescription Refill">📋 Prescription Refill</option>
+                <option value="Medical Certificate">📄 Medical Certificate</option>
+                <option value="Second Opinion">🔍 Second Opinion</option>
+                <option value="Pre-operative Consultation">🏥 Pre-operative Consultation</option>
+                <option value="Post-operative Follow-up">✅ Post-operative Follow-up</option>
+                <option value="Other">📝 Other</option>
+            </select>
+            <svg style="position: absolute; right: 16px; top: 50%; transform: translateY(-50%); width: 16px; height: 16px; color: var(--text-light); pointer-events: none;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="6 9 12 15 18 9"></polyline>
+            </svg>
+        </div>
+    </div>
+</div>
+<?php endif; ?>
+
 <!-- Calendar + Time Slots (Two Column) -->
 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
     
@@ -224,45 +284,11 @@ body { margin: 0; padding: 0; }
     </div>
 </div>
 
-<!-- Purpose -->
-<?php if($type=='service'): ?>
-<div style="padding: 20px; border-top: 1px solid var(--border-color);" id="purposeSection" style="display:none;">
-    <h3 style="font-size:18px;font-weight:700;margin-bottom:8px;color:var(--text-primary);">Appointment Purpose</h3>
-    <select id="servicePurpose" class="form-control" style="padding: 12px; font-size: 14px; border: 1px solid var(--border-color); border-radius: 8px; background: white;">
-        <option value="">Select purpose...</option>
-        <option value="Laboratory Test">Laboratory Test</option>
-        <option value="Radiology/Imaging">Radiology/Imaging</option>
-        <option value="Physical Therapy">Physical Therapy</option>
-        <option value="Emergency Care">Emergency Care</option>
-        <option value="Surgical Procedure">Surgical Procedure</option>
-        <option value="Follow-up Care">Follow-up Care</option>
-        <option value="Other">Other</option>
-    </select>
-</div>
-<?php else: ?>
-<div style="padding: 20px; border-top: 1px solid var(--border-color);" id="doctorPurposeSection" style="display:none;">
-    <h3 style="font-size:18px;font-weight:700;margin-bottom:8px;color:var(--text-primary);">Appointment Purpose</h3>
-    <select id="doctorPurpose" class="form-control" style="padding: 12px; font-size: 14px; border: 1px solid var(--border-color); border-radius: 8px; background: white;">
-        <option value="">Select reason...</option>
-        <option value="General Consultation">General Consultation</option>
-        <option value="Follow-up Visit">Follow-up Visit</option>
-        <option value="New Symptoms">New Symptoms</option>
-        <option value="Chronic Disease Management">Chronic Disease Management</option>
-        <option value="Prescription Refill">Prescription Refill</option>
-        <option value="Medical Certificate">Medical Certificate</option>
-        <option value="Second Opinion">Second Opinion</option>
-        <option value="Pre-operative Consultation">Pre-operative Consultation</option>
-        <option value="Post-operative Follow-up">Post-operative Follow-up</option>
-        <option value="Other">Other</option>
-    </select>
-</div>
-<?php endif; ?>
-
 </div>
 
 <!-- Book Button Fixed at Bottom -->
-<div style="position: fixed; bottom: 80px; left: 0; right: 0; padding: 12px 16px; background: transparent; box-shadow: none; z-index: 100;">
-    <div style="max-width: min(600px, 90vw); margin: 0 auto;">
+<div style="position: fixed; bottom: 80px; left: 0; right: 0; padding: 12px 16px; background: transparent; box-shadow: none; z-index: 100; pointer-events: none;">
+    <div style="max-width: min(600px, 90vw); margin: 0 auto; pointer-events: auto;">
         <button id="bookBtn" 
                 class="btn btn-primary btn-block btn-lg btn-book-main" 
                 disabled 
@@ -406,7 +432,9 @@ document.getElementById('bookBtn').addEventListener('click',async()=>{
     try{
         const resp=await fetch('api/book-appointment.php',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(bookingData)});
         const data=await resp.json();
-        if(data.success) { alert('Booking successful!'); location.reload(); }
+        if(data.success) { 
+            showSuccessModal(); 
+        }
         else { alert('Error: '+(data.message||'Unknown')); btn.disabled=false; btn.textContent='Book Appointment'; }
     }catch(e){ alert('Error booking.'); btn.disabled=false; btn.textContent='Book Appointment'; console.error(e);}
 });
@@ -430,6 +458,49 @@ function nextMonth(){
 }
 
 renderCalendar();
+
+// Success Modal Functions
+function showSuccessModal() {
+    document.getElementById('successModal').style.display = 'flex';
+}
+
+function closeSuccessModal() {
+    document.getElementById('successModal').style.display = 'none';
+    window.location.href = 'dashboard.php';
+}
 </script>
+
+<!-- Success Modal -->
+<div id="successModal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 10000; align-items: center; justify-content: center;">
+    <div style="background: white; border-radius: 16px; padding: 32px; max-width: 440px; width: 90%; margin: 20px; text-align: center;">
+        <div style="width: 64px; height: 64px; background: #dcfce7; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px;">
+            <svg style="width: 32px; height: 32px; color: #16a34a;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                <polyline points="20 6 9 17 4 12"></polyline>
+            </svg>
+        </div>
+        <h3 style="font-size: 20px; font-weight: 700; margin-bottom: 12px; color: #16a34a;">Booking Successful!</h3>
+        <p style="font-size: 14px; color: var(--text-secondary); margin-bottom: 16px; line-height: 1.5;">Your appointment has been successfully booked.</p>
+        
+        <!-- Info Box -->
+        <div style="background: #fef3c7; border-left: 4px solid #f59e0b; padding: 16px; border-radius: 8px; margin-bottom: 24px; text-align: left;">
+            <div style="display: flex; align-items: start; gap: 12px;">
+                <svg style="width: 20px; height: 20px; color: #f59e0b; flex-shrink: 0; margin-top: 2px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="12" y1="16" x2="12" y2="12"></line>
+                    <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                </svg>
+                <div style="font-size: 13px; color: #92400e; line-height: 1.6;">
+                    <strong style="display: block; margin-bottom: 4px;">Please Note:</strong>
+                    Please wait for our medical staff to confirm your appointment. You will receive a notification once confirmed. Thank you for your patience!
+                </div>
+            </div>
+        </div>
+        
+        <button onclick="closeSuccessModal()" style="padding: 12px 24px; background: var(--primary-color); color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; width: 100%;">
+            Go to Home
+        </button>
+    </div>
+</div>
+
 </body>
 </html>

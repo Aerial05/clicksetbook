@@ -68,6 +68,11 @@ $stats['total_appointments'] = $stmt->fetch()['count'];
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             padding-bottom: 0 !important;
             padding-left: 0 !important;
+            transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        body.sidebar-active {
+            margin-left: 280px;
         }
 
         html {
@@ -271,98 +276,252 @@ $stats['total_appointments'] = $stmt->fetch()['count'];
         .admin-sidenav {
             position: fixed;
             top: 0;
-            left: -300px;
+            left: 0;
             width: 280px;
             height: 100vh;
-            background: #ffffff;
-            box-shadow: 4px 0 16px rgba(0, 0, 0, 0.08);
+            background: white;
+            box-shadow: 2px 0 20px rgba(0, 0, 0, 0.1);
             z-index: 1000;
-            transition: left 0.3s ease;
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             overflow-y: auto;
+            overflow-x: hidden;
+            transform: translateX(calc(-100% + 70px));
+            border-right: 1px solid #e2e8f0;
+        }
+
+        .admin-sidenav::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .admin-sidenav::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .admin-sidenav::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 3px;
+        }
+
+        .admin-sidenav::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
         }
 
         .admin-sidenav.active {
+            transform: translateX(0);
+            box-shadow: 4px 0 30px rgba(0, 0, 0, 0.15);
+        }
+
+        /* Hover trigger zone */
+        .sidebar-hover-trigger {
+            position: fixed;
+            top: 0;
             left: 0;
+            width: 70px;
+            height: 100vh;
+            z-index: 998;
+            background: transparent;
+            pointer-events: none;
         }
 
         .sidenav-header {
-            background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
-            padding: 24px 20px;
-            color: white;
+            background: #f8fafc;
+            padding: 20px 16px;
+            color: #1e293b;
             position: relative;
+            min-height: 76px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            margin-right: 70px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 1;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .admin-sidenav.active .sidenav-header {
+            margin-right: 0;
+            padding-left: 20px;
+            padding-right: 20px;
         }
 
         .sidenav-header h2 {
-            font-size: 18px;
+            font-size: 17px;
             font-weight: 700;
-            margin: 0 0 4px 0;
-            letter-spacing: -0.5px;
+            margin: 0 0 3px 0;
+            letter-spacing: -0.3px;
+            opacity: 0;
+            transform: translateX(10px);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) 0.05s;
+            color: #1e293b;
+        }
+
+        .admin-sidenav.active .sidenav-header h2 {
+            opacity: 1;
+            transform: translateX(0);
         }
 
         .sidenav-header p {
-            font-size: 12px;
-            opacity: 0.9;
+            font-size: 11.5px;
+            opacity: 0;
             margin: 0;
             font-weight: 400;
+            transform: translateX(10px);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) 0.1s;
+            color: #64748b;
+        }
+
+        .admin-sidenav.active .sidenav-header p {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        /* Logo/Icon in header when collapsed */
+        .sidenav-header::before {
+            content: '⚕️';
+            position: absolute;
+            right: -50px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 28px;
+            opacity: 1;
+            transition: opacity 0.3s ease;
+        }
+
+        .admin-sidenav.active .sidenav-header::before {
+            opacity: 0;
         }
 
         .close-sidebar {
             position: absolute;
-            top: 16px;
-            right: 16px;
-            background: rgba(255, 255, 255, 0.2);
+            top: 12px;
+            right: 12px;
+            background: rgba(255, 255, 255, 0.15);
             border: none;
             color: white;
-            font-size: 28px;
+            font-size: 24px;
             cursor: pointer;
-            padding: 4px 8px;
+            padding: 6px 10px;
             line-height: 1;
-            border-radius: 6px;
-            transition: background 0.2s ease;
+            border-radius: 8px;
+            transition: all 0.2s ease;
+            opacity: 0;
+            transform: scale(0.8);
+        }
+
+        .admin-sidenav.active .close-sidebar {
+            opacity: 1;
+            transform: scale(1);
         }
 
         .close-sidebar:hover {
-            background: rgba(255, 255, 255, 0.3);
+            background: rgba(255, 255, 255, 0.25);
+            transform: scale(1.05);
         }
 
         .admin-nav {
             display: flex;
             flex-direction: column;
-            gap: 6px;
-            padding: 16px;
+            gap: 4px;
+            padding: 8px 0;
+            position: relative;
+            z-index: 1;
         }
 
         .admin-nav-item {
-            padding: 12px 16px;
+            padding: 13px 0 13px 20px;
             background: transparent;
             border: none;
-            border-radius: 10px;
-            font-size: 14px;
+            border-radius: 0;
+            font-size: 14.5px;
             font-weight: 500;
-            color: #4b5563;
+            color: #1e293b;
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: all 0.2s ease;
             text-decoration: none;
             display: flex;
             align-items: center;
-            gap: 12px;
+            justify-content: space-between;
+            gap: 16px;
+            position: relative;
+            overflow: visible;
+            padding-right: 0;
+        }
+
+        .admin-nav-item .admin-nav-icon {
+            font-size: 21px;
+            flex-shrink: 0;
+            width: 70px;
+            text-align: center;
+            transition: all 0.2s ease;
+            opacity: 1;
+            color: #64748b;
+        }
+
+        .admin-nav-item span:not(.admin-nav-icon) {
+            white-space: nowrap;
+            opacity: 0;
+            transform: translateX(10px);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) 0.05s;
+            color: #1e293b;
+            font-weight: 600;
+            flex: 1;
+        }
+
+        .admin-sidenav.active .admin-nav-item span:not(.admin-nav-icon) {
+            opacity: 1;
+            transform: translateX(0);
         }
 
         .admin-nav-item:hover {
-            background: #f3f4f6;
-            color: #1e3a8a;
+            background: rgba(59, 130, 246, 0.08);
+        }
+
+        .admin-nav-item:hover .admin-nav-icon {
+            transform: scale(1.15);
+            color: #3b82f6;
         }
 
         .admin-nav-item.active {
-            background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
-            color: white;
-            box-shadow: 0 4px 12px rgba(30, 58, 138, 0.3);
+            background: rgba(59, 130, 246, 0.1);
         }
 
-        .admin-nav-icon {
-            font-size: 20px;
-            width: 24px;
-            text-align: center;
+        .admin-nav-item.active::before {
+            content: '';
+            position: absolute;
+            right: 0;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            background: linear-gradient(180deg, #3b82f6 0%, #2563eb 100%);
+            border-radius: 3px 0 0 3px;
+        }
+
+        .admin-nav-item.active .admin-nav-icon {
+            transform: scale(1.08);
+            color: #3b82f6;
+        }
+
+        .admin-sidenav.active .admin-nav-item {
+            padding-right: 16px;
+            margin: 0 10px;
+            border-radius: 10px;
+        }
+
+        .admin-sidenav.active .admin-nav-item.active::before {
+            display: none;
+        }
+
+        .admin-sidenav.active .admin-nav-item.active {
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            color: white;
+        }
+
+        .admin-sidenav.active .admin-nav-item.active span:not(.admin-nav-icon) {
+            color: white;
+        }
+
+        .admin-sidenav.active .admin-nav-item.active .admin-nav-icon {
+            color: white;
         }
 
         /* Stats Grid */
@@ -1053,6 +1212,9 @@ $stats['total_appointments'] = $stmt->fetch()['count'];
     <!-- Sidebar Overlay -->
     <div class="sidebar-overlay" id="sidebarOverlay"></div>
 
+    <!-- Hover trigger for sidebar -->
+    <div class="sidebar-hover-trigger" id="sidebarHoverTrigger"></div>
+
     <!-- Side Navigation -->
     <aside class="admin-sidenav" id="adminSidenav">
         <div class="sidenav-header">
@@ -1062,32 +1224,32 @@ $stats['total_appointments'] = $stmt->fetch()['count'];
         </div>
         <nav class="admin-nav">
             <a href="#" class="admin-nav-item active" data-section="overview">
-                <span class="admin-nav-icon">📊</span>
                 <span>Overview</span>
+                <span class="admin-nav-icon">📊</span>
             </a>
             <a href="#" class="admin-nav-item" data-section="appointments">
-                <span class="admin-nav-icon">📅</span>
                 <span>Appointments</span>
+                <span class="admin-nav-icon">📅</span>
             </a>
             <a href="#" class="admin-nav-item" data-section="users">
-                <span class="admin-nav-icon">👥</span>
                 <span>Users</span>
+                <span class="admin-nav-icon">👥</span>
             </a>
             <a href="#" class="admin-nav-item" data-section="doctors">
-                <span class="admin-nav-icon">👨‍⚕️</span>
                 <span>Doctors</span>
+                <span class="admin-nav-icon">👨‍⚕️</span>
             </a>
             <a href="#" class="admin-nav-item" data-section="services">
-                <span class="admin-nav-icon">🔬</span>
                 <span>Services</span>
+                <span class="admin-nav-icon">🔬</span>
             </a>
             <a href="#" class="admin-nav-item" data-section="settings">
-                <span class="admin-nav-icon">⚙️</span>
                 <span>Settings</span>
+                <span class="admin-nav-icon">⚙️</span>
             </a>
             <a href="#" class="admin-nav-item" data-section="logs">
-                <span class="admin-nav-icon">📋</span>
                 <span>History & Logs</span>
+                <span class="admin-nav-icon">📋</span>
             </a>
         </nav>
     </aside>
@@ -1210,7 +1372,7 @@ $stats['total_appointments'] = $stmt->fetch()['count'];
                         <div>
                             <label for="filter-status">Status</label>
                             <select id="filter-status" class="form-control">
-                                <option value="">All Status</option>
+                                <option value="">All Statuses</option>
                                 <option value="pending">Pending</option>
                                 <option value="confirmed">Confirmed</option>
                                 <option value="completed">Completed</option>
@@ -1769,56 +1931,96 @@ $stats['total_appointments'] = $stmt->fetch()['count'];
                     <h2 class="section-title">System Settings</h2>
                 </div>
 
-                <div class="card">
-                    <h3 style="font-size: 16px; font-weight: 600; margin-bottom: 20px;">Business Hours</h3>
-                    <form id="business-hours-form">
-                        <div style="display: grid; gap: 20px;">
-                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
-                                <div>
-                                    <label for="opening_time">Opening Time</label>
-                                    <input type="time" name="opening_time" id="opening_time" class="form-control" value="08:00">
+                <!-- Two Column Layout for Settings -->
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 20px;">
+                    
+                    <!-- Business Hours Card -->
+                    <div class="card">
+                        <h3 style="font-size: 16px; font-weight: 600; margin-bottom: 20px; color: var(--text-primary);">
+                            ⏰ Business Hours
+                        </h3>
+                        <form id="business-hours-form">
+                            <div style="display: grid; gap: 16px;">
+                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                                    <div>
+                                        <label for="opening_time" style="font-size: 13px; color: var(--text-light); margin-bottom: 6px; display: block;">Opening Time</label>
+                                        <input type="time" name="opening_time" id="opening_time" class="form-control" value="08:00">
+                                    </div>
+                                    <div>
+                                        <label for="closing_time" style="font-size: 13px; color: var(--text-light); margin-bottom: 6px; display: block;">Closing Time</label>
+                                        <input type="time" name="closing_time" id="closing_time" class="form-control" value="18:00">
+                                    </div>
                                 </div>
                                 <div>
-                                    <label for="closing_time">Closing Time</label>
-                                    <input type="time" name="closing_time" id="closing_time" class="form-control" value="18:00">
+                                    <label for="default_duration" style="font-size: 13px; color: var(--text-light); margin-bottom: 6px; display: block;">Default Appointment Duration</label>
+                                    <div style="display: flex; align-items: center; gap: 8px;">
+                                        <input type="number" name="default_duration" id="default_duration" class="form-control" value="30" min="15" step="15" style="flex: 1;">
+                                        <span style="font-size: 14px; color: var(--text-light);">minutes</span>
+                                    </div>
                                 </div>
+                                <button type="submit" class="btn btn-primary" style="width: fit-content; padding: 10px 24px; margin-top: 8px;">
+                                    Save Changes
+                                </button>
                             </div>
-                            <div>
-                                <label for="default_duration">Default Appointment Duration (minutes)</label>
-                                <input type="number" name="default_duration" id="default_duration" class="form-control" value="30" min="15" step="15">
+                        </form>
+                    </div>
+
+                    <!-- Notification Settings Card -->
+                    <div class="card">
+                        <h3 style="font-size: 16px; font-weight: 600; margin-bottom: 20px; color: var(--text-primary);">
+                            🔔 Notification Settings
+                        </h3>
+                        <form id="notification-settings-form">
+                            <div style="display: grid; gap: 16px;">
+                                <div style="padding: 12px; background: var(--bg-secondary); border-radius: 8px;">
+                                    <div style="display: flex; align-items: center; gap: 12px;">
+                                        <input type="checkbox" id="email-notifications" name="email_notifications" checked style="cursor: pointer;">
+                                        <label for="email-notifications" style="margin: 0; cursor: pointer; flex: 1;">
+                                            <div style="font-weight: 500; font-size: 14px; margin-bottom: 2px;">Email Notifications</div>
+                                            <div style="font-size: 12px; color: var(--text-light);">Send email notifications to users</div>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div style="padding: 12px; background: var(--bg-secondary); border-radius: 8px;">
+                                    <div style="display: flex; align-items: center; gap: 12px;">
+                                        <input type="checkbox" id="admin-notifications" name="admin_notifications" checked style="cursor: pointer;">
+                                        <label for="admin-notifications" style="margin: 0; cursor: pointer; flex: 1;">
+                                            <div style="font-weight: 500; font-size: 14px; margin-bottom: 2px;">Admin Notifications</div>
+                                            <div style="font-size: 12px; color: var(--text-light);">Receive admin notifications</div>
+                                        </label>
+                                    </div>
+                                </div>
+                                <button type="submit" class="btn btn-primary" style="width: fit-content; padding: 10px 24px; margin-top: 8px;">
+                                    Save Changes
+                                </button>
                             </div>
-                            <button type="submit" class="btn btn-primary btn-block">Save Business Hours</button>
-                        </div>
-                    </form>
+                        </form>
+                    </div>
+
                 </div>
 
+                <!-- System Information Card - Full Width -->
                 <div class="card" style="margin-top: 20px;">
-                    <h3 style="font-size: 16px; font-weight: 600; margin-bottom: 20px;">Notification Settings</h3>
-                    <form id="notification-settings-form">
-                        <div style="display: grid; gap: 20px;">
-                            <div style="display: flex; align-items: center; gap: 12px;">
-                                <input type="checkbox" id="email-notifications" name="email_notifications" checked>
-                                <label for="email-notifications" style="margin: 0; cursor: pointer;">Send email notifications to users</label>
-                            </div>
-                            <div style="display: flex; align-items: center; gap: 12px;">
-                                <input type="checkbox" id="admin-notifications" name="admin_notifications" checked>
-                                <label for="admin-notifications" style="margin: 0; cursor: pointer;">Receive admin notifications</label>
-                            </div>
-                            <button type="submit" class="btn btn-primary btn-block">Save Notification Settings</button>
+                    <h3 style="font-size: 16px; font-weight: 600; margin-bottom: 16px; color: var(--text-primary);">
+                        💻 System Information
+                    </h3>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 16px;">
+                        <div style="padding: 16px; background: var(--bg-secondary); border-radius: 12px; border-left: 4px solid var(--primary-color);">
+                            <div style="font-size: 12px; color: var(--text-light); margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px;">System Version</div>
+                            <div style="font-size: 18px; font-weight: 600; color: var(--text-primary);">1.0.0</div>
                         </div>
-                    </form>
-                </div>
-
-                <div class="card" style="margin-top: 20px;">
-                    <h3 style="font-size: 16px; font-weight: 600; margin-bottom: 20px;">System Information</h3>
-                    <div style="display: grid; gap: 12px; font-size: 14px;">
-                        <div style="display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid var(--border-color);">
-                            <span style="color: var(--text-light);">System Version:</span>
-                            <span style="font-weight: 500;">1.0.0</span>
+                        <div style="padding: 16px; background: var(--bg-secondary); border-radius: 12px; border-left: 4px solid #22c55e;">
+                            <div style="font-size: 12px; color: var(--text-light); margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px;">Database Status</div>
+                            <div style="font-size: 18px; font-weight: 600; color: #22c55e;">
+                                <svg style="width: 16px; height: 16px; display: inline; margin-right: 4px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                                    <polyline points="20 6 9 17 4 12"></polyline>
+                                </svg>
+                                Connected
+                            </div>
                         </div>
-                        <div style="display: flex; justify-content: space-between; padding: 12px 0;">
-                            <span style="color: var(--text-light);">Database Status:</span>
-                            <span style="color: #22c55e; font-weight: 500;">✓ Connected</span>
+                        <div style="padding: 16px; background: var(--bg-secondary); border-radius: 12px; border-left: 4px solid #f59e0b;">
+                            <div style="font-size: 12px; color: var(--text-light); margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px;">Last Updated</div>
+                            <div style="font-size: 18px; font-weight: 600; color: var(--text-primary);">Nov 22, 2025</div>
                         </div>
                     </div>
                 </div>
@@ -1990,35 +2192,59 @@ $stats['total_appointments'] = $stmt->fetch()['count'];
     </div>
 
     <script>
-        // Sidebar toggle functionality
+        // Sidebar toggle functionality with hover
         const hamburgerMenu = document.getElementById('hamburgerMenu');
         const adminSidenav = document.getElementById('adminSidenav');
         const sidebarOverlay = document.getElementById('sidebarOverlay');
         const closeSidebar = document.getElementById('closeSidebar');
+        const sidebarHoverTrigger = document.getElementById('sidebarHoverTrigger');
+        
+        let sidebarTimeout;
 
         function openSidebar() {
+            clearTimeout(sidebarTimeout);
             adminSidenav.classList.add('active');
-            sidebarOverlay.classList.add('active');
-            document.getElementById('adminTopnav').classList.add('sidebar-active');
-            document.querySelectorAll('.admin-section').forEach(section => {
-                section.classList.add('sidebar-active');
-            });
-            document.body.style.overflow = 'hidden';
+            document.body.classList.add('sidebar-active');
         }
 
         function closeSidebarFunc() {
+            sidebarTimeout = setTimeout(() => {
+                adminSidenav.classList.remove('active');
+                document.body.classList.remove('sidebar-active');
+            }, 300);
+        }
+        
+        // Hover to open sidebar
+        adminSidenav.addEventListener('mouseenter', () => {
+            openSidebar();
+        });
+        
+        // Close sidebar when mouse leaves with delay
+        adminSidenav.addEventListener('mouseleave', () => {
+            closeSidebarFunc();
+        });
+        
+        // Hamburger menu click functionality
+        hamburgerMenu.addEventListener('click', () => {
+            openSidebar();
+            sidebarOverlay.classList.add('active');
+        });
+        
+        // Close button functionality
+        closeSidebar.addEventListener('click', () => {
+            clearTimeout(sidebarTimeout);
             adminSidenav.classList.remove('active');
             sidebarOverlay.classList.remove('active');
-            document.getElementById('adminTopnav').classList.remove('sidebar-active');
-            document.querySelectorAll('.admin-section').forEach(section => {
-                section.classList.remove('sidebar-active');
-            });
-            document.body.style.overflow = '';
-        }
-
-        hamburgerMenu.addEventListener('click', openSidebar);
-        closeSidebar.addEventListener('click', closeSidebarFunc);
-        sidebarOverlay.addEventListener('click', closeSidebarFunc);
+            document.body.classList.remove('sidebar-active');
+        });
+        
+        // Click overlay to close
+        sidebarOverlay.addEventListener('click', () => {
+            clearTimeout(sidebarTimeout);
+            adminSidenav.classList.remove('active');
+            sidebarOverlay.classList.remove('active');
+            document.body.classList.remove('sidebar-active');
+        });
 
         // Navigation handling
         document.querySelectorAll('.admin-nav-item').forEach(item => {
@@ -2034,8 +2260,8 @@ $stats['total_appointments'] = $stmt->fetch()['count'];
                 document.querySelectorAll('.admin-section').forEach(sec => sec.classList.remove('active'));
                 document.getElementById(section + '-section').classList.add('active');
                 
-                // Close sidebar on mobile after selection
-                closeSidebarFunc();
+                // Don't close sidebar when clicking - let hover out handle it
+                // Sidebar will close when mouse leaves
                 
                 // Load section data
                 loadSectionData(section);

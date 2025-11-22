@@ -46,6 +46,23 @@ try {
     }
     
     if ($action == 'cancel') {
+        // Get full appointment details for notification
+        $stmt = $pdo->prepare("
+            SELECT 
+                a.*,
+                s.name as service_name,
+                s.category as service_category,
+                COALESCE(CONCAT(u.first_name, ' ', u.last_name), CONCAT('Dr. ', d.specialty)) as doctor_name,
+                d.specialty as doctor_specialty
+            FROM appointments a
+            LEFT JOIN services s ON a.service_id = s.id
+            LEFT JOIN doctors d ON a.doctor_id = d.id
+            LEFT JOIN users u ON d.user_id = u.id
+            WHERE a.id = ?
+        ");
+        $stmt->execute([$bookingId]);
+        $appointmentDetails = $stmt->fetch(PDO::FETCH_ASSOC);
+        
         // Update status to cancelled with reason
         $stmt = $pdo->prepare("UPDATE appointments SET 
                                status = 'cancelled', 
@@ -59,10 +76,42 @@ try {
                                WHERE id = ?");
         $stmt->execute([$userId, $cancelReason, $cancelDetails, $bookingId]);
         
-        // Create notification
+        // Format appointment details for notification
+        $appointmentDate = date('F j, Y', strtotime($appointmentDetails['appointment_date']));
+        $appointmentTime = date('g:i A', strtotime($appointmentDetails['appointment_time']));
+        $appointmentFor = $appointmentDetails['service_name'] 
+            ? $appointmentDetails['service_name'] . ' (' . ucfirst($appointmentDetails['service_category']) . ')'
+            : 'Dr. ' . $appointmentDetails['doctor_name'] . ' - ' . $appointmentDetails['doctor_specialty'];
+        
+        // Build detailed notification message
+        $notificationMessage = "Your appointment has been cancelled.\n\n";
+        $notificationMessage .= "Appointment Details:\n";
+        $notificationMessage .= "━━━━━━━━━━━━━━━━━━\n";
+        $notificationMessage .= "📅 Date: " . $appointmentDate . "\n";
+        $notificationMessage .= "🕐 Time: " . $appointmentTime . "\n";
+        $notificationMessage .= "📋 For: " . $appointmentFor . "\n";
+        
+        if ($appointmentDetails['appointment_purpose']) {
+            $notificationMessage .= "📝 Purpose: " . $appointmentDetails['appointment_purpose'] . "\n";
+        }
+        
+        $notificationMessage .= "\nCancellation Details:\n";
+        $notificationMessage .= "━━━━━━━━━━━━━━━━━━\n";
+        $notificationMessage .= "❌ Reason: " . $cancelReason . "\n";
+        
+        if ($cancelDetails) {
+            $notificationMessage .= "💬 Additional Notes: " . $cancelDetails . "\n";
+        }
+        
+        $notificationMessage .= "\nCancelled on: " . date('F j, Y g:i A') . "\n";
+        $notificationMessage .= "\nIf you wish to reschedule, please book a new appointment.";
+        
+        $notificationTitle = "Appointment Cancelled - " . $appointmentDate;
+        
+        // Create detailed notification
         $stmt = $pdo->prepare("INSERT INTO notifications (user_id, title, message_content, template_type, notification_type, is_read, created_at) 
-                               VALUES (?, 'Appointment Cancelled', 'Your appointment has been cancelled successfully', 'cancellation', 'email', 0, NOW())");
-        $stmt->execute([$userId]);
+                               VALUES (?, ?, ?, 'cancellation', 'email', 0, NOW())");
+        $stmt->execute([$userId, $notificationTitle, $notificationMessage]);
         
         echo json_encode([
             'success' => true,
