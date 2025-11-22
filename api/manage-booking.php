@@ -83,35 +83,21 @@ try {
             ? $appointmentDetails['service_name'] . ' (' . ucfirst($appointmentDetails['service_category']) . ')'
             : 'Dr. ' . $appointmentDetails['doctor_name'] . ' - ' . $appointmentDetails['doctor_specialty'];
         
-        // Build detailed notification message
-        $notificationMessage = "Your appointment has been cancelled.\n\n";
-        $notificationMessage .= "Appointment Details:\n";
-        $notificationMessage .= "━━━━━━━━━━━━━━━━━━\n";
-        $notificationMessage .= "📅 Date: " . $appointmentDate . "\n";
-        $notificationMessage .= "🕐 Time: " . $appointmentTime . "\n";
-        $notificationMessage .= "📋 For: " . $appointmentFor . "\n";
-        
-        if ($appointmentDetails['appointment_purpose']) {
-            $notificationMessage .= "📝 Purpose: " . $appointmentDetails['appointment_purpose'] . "\n";
-        }
-        
-        $notificationMessage .= "\nCancellation Details:\n";
-        $notificationMessage .= "━━━━━━━━━━━━━━━━━━\n";
-        $notificationMessage .= "❌ Reason: " . $cancelReason . "\n";
+        // Build simple notification message - only summary, details will be in dropdown
+        $notificationMessage = "Your appointment has been cancelled. Appointment Details: " . $appointmentFor . " Date: " . $appointmentDate . " Time: " . $appointmentTime . " Reason: " . $cancelReason;
         
         if ($cancelDetails) {
-            $notificationMessage .= "💬 Additional Notes: " . $cancelDetails . "\n";
+            $notificationMessage .= " Cancelled on: " . date('F j, Y g:i A');
         }
         
-        $notificationMessage .= "\nCancelled on: " . date('F j, Y g:i A') . "\n";
-        $notificationMessage .= "\nIf you wish to reschedule, please book a new appointment.";
+        $notificationMessage .= " If you wish to reschedule, please book a new appointment.";
         
         $notificationTitle = "Appointment Cancelled - " . $appointmentDate;
         
-        // Create detailed notification
-        $stmt = $pdo->prepare("INSERT INTO notifications (user_id, title, message_content, template_type, notification_type, is_read, created_at) 
-                               VALUES (?, ?, ?, 'cancellation', 'email', 0, NOW())");
-        $stmt->execute([$userId, $notificationTitle, $notificationMessage]);
+        // Create detailed notification with appointment_id
+        $stmt = $pdo->prepare("INSERT INTO notifications (user_id, appointment_id, title, message_content, template_type, notification_type, is_read, created_at) 
+                               VALUES (?, ?, ?, ?, 'cancellation', 'email', 0, NOW())");
+        $stmt->execute([$userId, $bookingId, $notificationTitle, $notificationMessage]);
         
         echo json_encode([
             'success' => true,

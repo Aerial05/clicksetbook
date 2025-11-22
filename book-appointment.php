@@ -284,11 +284,9 @@ body { margin: 0; padding: 0; }
     </div>
 </div>
 
-</div>
-
-<!-- Book Button Fixed at Bottom -->
-<div style="position: fixed; bottom: 80px; left: 0; right: 0; padding: 12px 16px; background: transparent; box-shadow: none; z-index: 100; pointer-events: none;">
-    <div style="max-width: min(600px, 90vw); margin: 0 auto; pointer-events: auto;">
+<!-- Book Button -->
+<div style="margin-top: 24px; margin-bottom: 100px;">
+    <div style="max-width: min(600px, 90vw); margin: 0 auto;">
         <button id="bookBtn" 
                 class="btn btn-primary btn-block btn-lg btn-book-main" 
                 disabled 
