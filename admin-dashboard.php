@@ -2588,13 +2588,42 @@ $stats['total_appointments'] = $stmt->fetch()['count'];
                     <div style="display: flex; justify-content: space-between; align-items: start; gap: 12px;">
                         <div style="flex: 1;">
                             <div style="font-weight: 600; font-size: 15px; margin-bottom: 4px;">${apt.patient_name}</div>
-                            <div style="font-size: 14px; color: var(--text-light); margin-bottom: 4px;">
-                                ${apt.service_name ? '� ' + apt.service_name : (apt.doctor_name ? '�‍⚕️ Dr. ' + apt.doctor_name : 'N/A')}
+                            <div style="font-size: 14px; color: var(--text-light); margin-bottom: 4px; display: flex; align-items: center; gap: 6px;">
+                                ${apt.service_name ? `
+                                    <svg style="width: 16px; height: 16px; flex-shrink: 0;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                                        <polyline points="14 2 14 8 20 8"></polyline>
+                                        <line x1="16" y1="13" x2="8" y2="13"></line>
+                                        <line x1="16" y1="17" x2="8" y2="17"></line>
+                                        <polyline points="10 9 9 9 8 9"></polyline>
+                                    </svg>
+                                    <span>${apt.service_name}</span>
+                                ` : (apt.doctor_name ? `
+                                    <svg style="width: 16px; height: 16px; flex-shrink: 0;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                                        <circle cx="12" cy="7" r="4"></circle>
+                                    </svg>
+                                    <span>Dr. ${apt.doctor_name}</span>
+                                ` : 'N/A')}
                             </div>
-                            <div style="font-size: 13px; color: var(--text-light);">
-                                📅 ${formatDate(apt.appointment_date)} at ${apt.appointment_time}
+                            <div style="font-size: 13px; color: var(--text-light); display: flex; align-items: center; gap: 6px;">
+                                <svg style="width: 14px; height: 14px; flex-shrink: 0;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                                    <line x1="16" y1="2" x2="16" y2="6"></line>
+                                    <line x1="8" y1="2" x2="8" y2="6"></line>
+                                    <line x1="3" y1="10" x2="21" y2="10"></line>
+                                </svg>
+                                <span>${formatDate(apt.appointment_date)} at ${apt.appointment_time}</span>
                             </div>
-                            ${apt.patient_email ? `<div style="font-size: 12px; color: var(--text-light); margin-top: 4px;">📧 ${apt.patient_email}</div>` : ''}
+                            ${apt.patient_email ? `
+                                <div style="font-size: 12px; color: var(--text-light); margin-top: 4px; display: flex; align-items: center; gap: 6px;">
+                                    <svg style="width: 14px; height: 14px; flex-shrink: 0;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                                        <polyline points="22,6 12,13 2,6"></polyline>
+                                    </svg>
+                                    <span>${apt.patient_email}</span>
+                                </div>
+                            ` : ''}
                             ${apt.status === 'cancelled' && apt.cancel_reason ? `
                                 <div style="margin-top: 8px; padding: 8px; background: #fef2f2; border-left: 3px solid #ef4444; border-radius: 4px;">
                                     <div style="font-size: 12px; font-weight: 600; color: #dc2626; margin-bottom: 4px;">Cancellation Reason:</div>

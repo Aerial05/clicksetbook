@@ -27,14 +27,12 @@ $query = "SELECT
     CONCAT(u.first_name, ' ', u.last_name) as patient_name,
     u.email as patient_email,
     u.phone as patient_phone,
+    CONCAT(ud.first_name, ' ', ud.last_name) as doctor_name,
+    s.name as service_name,
     CASE 
         WHEN a.doctor_id IS NOT NULL THEN 'doctor'
         ELSE 'service'
-    END as type,
-    CASE 
-        WHEN a.doctor_id IS NOT NULL THEN CONCAT(ud.first_name, ' ', ud.last_name)
-        ELSE s.name
-    END as provider_name
+    END as type
 FROM appointments a
 INNER JOIN users u ON a.patient_id = u.id
 LEFT JOIN doctors d ON a.doctor_id = d.id
