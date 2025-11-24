@@ -48,122 +48,42 @@ if (!$item) {
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Book Appointment - Click Set Book</title>
 <link rel="stylesheet" href="app-styles.css">
-<link rel="stylesheet" href="styles.css">
+<link rel="stylesheet" href="book-appointment-styles.css">
 <style>
-body {
-    padding-bottom: 160px;
-}
-/* --- Time Slots --- */
-body { margin: 0; padding: 0; }
-.container { padding: 0; display: flex; flex-direction: column; min-height: 100vh; }
-.content-wrapper { flex: 1; padding-bottom: 100px; overflow-y: auto; }
-.page-header { padding: 20px; background: white; border-bottom: 1px solid var(--border-color); }
-
-/* --- Flex layout --- */
-.flex-container {
-    display: flex;
-    gap: 24px;
-    flex-wrap: wrap;
-}
-.flex-item {
-    flex: 1;
-    min-width: 250px;
-}
-
-/* --- Time Slots --- */
-.time-slots-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 12px;
-    margin-top: 16px;
-}
-.time-slot {
-    padding: 14px;
-    border: 1px solid var(--border-color);
-    border-radius: 8px;
-    text-align: center;
-    cursor: pointer;
-    transition: all 0.3s;
-    background: white;
-    font-size: 14px;
-    font-weight: 600;
-}
-.time-slot:hover:not(.disabled) { border-color: var(--primary-color); background: var(--bg-secondary); }
-.time-slot.disabled { opacity: 0.4; cursor: not-allowed; background: var(--bg-tertiary); }
-.time-slot.selected { background: var(--primary-color); color: white; border-color: var(--primary-color); }
-
-/* --- Calendar --- */
-.calendar-grid {
-    display: grid;
-    grid-template-columns: repeat(7, 1fr);
-    gap: 10px;
-    margin-top: 16px;
-}
-.calendar-day {
-    aspect-ratio: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    border: 1px solid var(--border-color);
-    border-radius: 8px;
-    cursor: pointer;
-    transition: all 0.3s;
-    background: white;
-    font-size: 12px;
-    font-weight: 600;
-}
-.calendar-day:hover:not(.disabled) { border-color: var(--primary-color); background: var(--bg-secondary); }
-.calendar-day.disabled { opacity: 0.4; cursor: not-allowed; background: var(--bg-tertiary); }
-.calendar-day.selected { background: var(--primary-color); color: white; border-color: var(--primary-color); }
-.calendar-day .day-name { font-size: 9px; color: var(--text-light); font-weight: 700; }
-.calendar-day .day-number { font-size: 16px; font-weight: 700; margin-top: 4px; }
-
-/* --- Book Button Fixed --- */
-#bookButtonContainer {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    padding: 16px;
-    background: linear-gradient(to top, white, white 80%, rgba(255,255,255,0));
-    box-shadow: 0 -2px 15px rgba(0,0,0,0.08);
-    z-index: 1000;
-    display: flex;
-    gap: 12px;
-}
-.btn-book-main { flex: 1; }
-
-/* --- Two Column Layout --- */
-.booking-layout {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 24px;
-    padding: 20px;
-}
-
-@media(max-width: 768px) {
-    .booking-layout { grid-template-columns: 1fr; }
-    .time-slots-grid { grid-template-columns: repeat(3, 1fr); }
-}
-
-@media(min-width: 1024px) {
-    .time-slots-grid { grid-template-columns: repeat(2, 1fr); }
-}
+    /* Override sidebar padding for this standalone page */
+    body {
+        padding-left: 0 !important;
+    }
+    
+    /* Spinning animation for loading state */
+    @keyframes spin {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+    }
+    
+    /* Responsive button visibility */
+    @media (max-width: 768px) {
+        #bookBtnHeader {
+            display: none !important;
+        }
+        #bookBtn {
+            display: block !important;
+        }
+    }
 </style>
 </head>
 <body>
 <div class="container">
 
 <!-- Header -->
-<div class="page-header">
-    <div style="display: flex; align-items: center; gap:16px;">
-        <button onclick="history.back()" style="background: var(--bg-tertiary); border:none; width:40px; height:40px; border-radius:50%; display:flex; align-items:center; justify-content:center; cursor:pointer;">
-            <svg style="width:20px;height:20px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+<div style="padding: 24px 20px; max-width: 1200px; margin: 0 auto;">
+    <div style="display: flex; align-items: center; gap: 12px;">
+        <button onclick="history.back()" style="background: white; border: 1px solid var(--border-color); width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);" onmouseover="this.style.borderColor='#3b82f6'; this.style.boxShadow='0 2px 4px rgba(59, 130, 246, 0.15)';" onmouseout="this.style.borderColor='var(--border-color)'; this.style.boxShadow='0 1px 3px rgba(0, 0, 0, 0.05)';">
+            <svg style="width: 18px; height: 18px; color: var(--text-primary);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
                 <path d="M19 12H5M12 19l-7-7 7-7"/>
             </svg>
         </button>
-        <h1 style="font-size:20px;font-weight:700;margin:0;">Book Appointment</h1>
+        <h1 style="font-size: 20px; font-weight: 700; margin: 0; color: var(--text-primary); letter-spacing: -0.01em;">Book Appointment</h1>
     </div>
 </div>
 
@@ -171,15 +91,28 @@ body { margin: 0; padding: 0; }
 <div class="content-wrapper">
 
 <!-- Item Info -->
-<div style="padding: 20px; background: white; border-bottom: 1px solid var(--border-color);">
-    <div style="display:flex;gap:16px;align-items:center;">
-        <div style="width:60px;height:60px;background:var(--bg-secondary);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:24px;">
-            <?php echo $type=='doctor'?'👨‍⚕️':'🔬'; ?>
+<div style="padding: 20px; background: white; border-bottom: 1px solid var(--border-color); max-width: 1200px; margin: 0 auto;">
+    <div style="display: flex; justify-content: space-between; align-items: center; gap: 16px;">
+        <div style="display: flex; gap: 16px; align-items: center;">
+            <div style="width:60px;height:60px;background:var(--bg-secondary);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:24px;">
+                <?php echo $type=='doctor'?'👨‍⚕️':'🔬'; ?>
+            </div>
+            <div>
+                <h3 style="font-size:16px;font-weight:700;margin:0 0 4px 0;"><?php echo htmlspecialchars($itemName);?></h3>
+                <p style="font-size:14px;color:var(--text-light);margin:0;"><?php echo htmlspecialchars($itemSubtitle);?></p>
+            </div>
         </div>
-        <div>
-            <h3 style="font-size:16px;font-weight:700;margin:0 0 4px 0;"><?php echo htmlspecialchars($itemName);?></h3>
-            <p style="font-size:14px;color:var(--text-light);margin:0;"><?php echo htmlspecialchars($itemSubtitle);?></p>
-        </div>
+        <button id="bookBtnHeader" 
+                disabled 
+                style="padding: 12px 24px; background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%); color: white; border-radius: 12px; font-weight: 700; font-size: 15px; border: none; cursor: pointer; box-shadow: 0 4px 12px rgba(30, 58, 138, 0.3); transition: all 0.2s ease; white-space: nowrap; display: flex; align-items: center; gap: 10px; min-width: 160px; justify-content: center;"
+                onmouseover="if(!this.disabled) { this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 16px rgba(30, 58, 138, 0.4)'; }"
+                onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 12px rgba(30, 58, 138, 0.3)';">
+            <svg style="width: 18px; height: 18px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+                <path d="M9 11l3 3L22 4"></path>
+                <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
+            </svg>
+            <span>Book Now</span>
+        </button>
     </div>
 </div>
 
@@ -195,8 +128,8 @@ body { margin: 0; padding: 0; }
             <h3 style="font-size:18px;font-weight:700;margin:0;color:var(--text-primary);">Appointment Purpose</h3>
         </div>
         <div style="position: relative;">
-            <select id="servicePurpose" class="form-control" style="padding: 14px 40px 14px 16px; font-size: 15px; border: 2px solid var(--border-color); border-radius: 12px; background: white; cursor: pointer; appearance: none; width: 100%; transition: all 0.3s; font-weight: 500;" onfocus="this.style.borderColor='var(--primary-color)'; this.style.boxShadow='0 0 0 3px rgba(79, 70, 229, 0.1)';" onblur="this.style.borderColor='var(--border-color)'; this.style.boxShadow='none';">
-                <option value="" style="color: #9ca3af;">Select purpose...</option>
+            <select id="servicePurpose" class="form-control" style="padding: 14px 40px 14px 16px; font-size: 15px; border: 2px solid var(--border-color); border-radius: 12px; background: linear-gradient(to bottom, #ffffff 0%, #f9fafb 100%); cursor: pointer; appearance: none; width: 100%; transition: all 0.3s; font-weight: 500; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);" onfocus="this.style.borderColor='#3b82f6'; this.style.boxShadow='0 0 0 4px rgba(59, 130, 246, 0.1), 0 4px 6px rgba(0, 0, 0, 0.05)'; this.style.transform='translateY(-1px)';" onblur="this.style.borderColor='var(--border-color)'; this.style.boxShadow='0 1px 3px rgba(0, 0, 0, 0.05)'; this.style.transform='translateY(0)';">
+                <option value="" style="color: #9ca3af; font-style: italic;">Select purpose...</option>
                 <option value="Laboratory Test">🔬 Laboratory Test</option>
                 <option value="Radiology/Imaging">📊 Radiology/Imaging</option>
                 <option value="Physical Therapy">💪 Physical Therapy</option>
@@ -222,8 +155,8 @@ body { margin: 0; padding: 0; }
             <h3 style="font-size:18px;font-weight:700;margin:0;color:var(--text-primary);">Appointment Purpose</h3>
         </div>
         <div style="position: relative;">
-            <select id="doctorPurpose" class="form-control" style="padding: 14px 40px 14px 16px; font-size: 15px; border: 2px solid var(--border-color); border-radius: 12px; background: white; cursor: pointer; appearance: none; width: 100%; transition: all 0.3s; font-weight: 500;" onfocus="this.style.borderColor='var(--primary-color)'; this.style.boxShadow='0 0 0 3px rgba(79, 70, 229, 0.1)';" onblur="this.style.borderColor='var(--border-color)'; this.style.boxShadow='none';">
-                <option value="" style="color: #9ca3af;">Select reason...</option>
+            <select id="doctorPurpose" class="form-control" style="padding: 14px 40px 14px 16px; font-size: 15px; border: 2px solid var(--border-color); border-radius: 12px; background: linear-gradient(to bottom, #ffffff 0%, #f9fafb 100%); cursor: pointer; appearance: none; width: 100%; transition: all 0.3s; font-weight: 500; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);" onfocus="this.style.borderColor='#3b82f6'; this.style.boxShadow='0 0 0 4px rgba(59, 130, 246, 0.1), 0 4px 6px rgba(0, 0, 0, 0.05)'; this.style.transform='translateY(-1px)';" onblur="this.style.borderColor='var(--border-color)'; this.style.boxShadow='0 1px 3px rgba(0, 0, 0, 0.05)'; this.style.transform='translateY(0)';">
+                <option value="" style="color: #9ca3af; font-style: italic;">Select reason...</option>
                 <option value="General Consultation">👨‍⚕️ General Consultation</option>
                 <option value="Follow-up Visit">📅 Follow-up Visit</option>
                 <option value="New Symptoms">🩺 New Symptoms</option>
@@ -244,7 +177,7 @@ body { margin: 0; padding: 0; }
 <?php endif; ?>
 
 <!-- Calendar + Time Slots (Two Column) -->
-<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
+<div class="calendar-time-wrapper">
     
     <!-- Time Slots (Left) - Always visible -->
     <div>
@@ -285,8 +218,8 @@ body { margin: 0; padding: 0; }
 </div>
 
 <!-- Book Button -->
-<div style="margin-top: 24px; margin-bottom: 100px;">
-    <div style="max-width: min(600px, 90vw); margin: 0 auto;">
+<div style="display: none; position: sticky; bottom: 0; background: linear-gradient(to top, white 90%, rgba(255,255,255,0)); padding: 20px 0 24px 0; margin-top: 20px; z-index: 100; box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.05);">
+    <div style="max-width: min(600px, 90vw); margin: 0 auto; padding: 0 20px;">
         <button id="bookBtn" 
                 class="btn btn-primary btn-block btn-lg btn-book-main" 
                 disabled 
@@ -362,6 +295,9 @@ async function loadTimeSlots(){
         grid.innerHTML='';
 
         if(data.success && data.slots.length>0){
+            const now = new Date();
+            const isToday = selectedDate.toDateString() === now.toDateString();
+            
             data.slots.forEach(slot=>{
                 const el=document.createElement('div');
                 el.className='time-slot';
@@ -375,11 +311,22 @@ async function loadTimeSlots(){
 
                 el.textContent = formattedTime;
 
-                if(slot.available){
-                    el.addEventListener('click',()=>selectTime(slot.time,el));
-                } else {
-                    el.classList.add('disabled');
+                // Check if slot is in the past (for today only)
+                let isPastTime = false;
+                if(isToday) {
+                    const [slotHour, slotMinute] = slot.time.split(':').map(Number);
+                    const slotDateTime = new Date(selectedDate);
+                    slotDateTime.setHours(slotHour, slotMinute, 0, 0);
+                    isPastTime = slotDateTime <= now;
                 }
+
+                // Disable if not available OR if it's in the past
+                if(!slot.available || isPastTime){
+                    el.classList.add('disabled');
+                } else {
+                    el.addEventListener('click',()=>selectTime(slot.time,el));
+                }
+                
                 grid.appendChild(el);
             });
         } else {
@@ -410,32 +357,77 @@ function selectTime(time,element){
 
 function updateBookButton(){ 
     const btn = document.getElementById('bookBtn');
-    btn.disabled=!selectedDate||!selectedTime; 
+    const btnHeader = document.getElementById('bookBtnHeader');
+    const isDisabled = !selectedDate || !selectedTime;
+    
+    btn.disabled = isDisabled;
+    btnHeader.disabled = isDisabled;
+    
+    // Update button opacity for disabled state
+    if(isDisabled) {
+        btn.style.opacity = '0.5';
+        btn.style.cursor = 'not-allowed';
+        btnHeader.style.opacity = '0.5';
+        btnHeader.style.cursor = 'not-allowed';
+    } else {
+        btn.style.opacity = '1';
+        btn.style.cursor = 'pointer';
+        btnHeader.style.opacity = '1';
+        btnHeader.style.cursor = 'pointer';
+    }
 }
 
-document.getElementById('bookBtn').addEventListener('click',async()=>{
-    const btn=document.getElementById('bookBtn');
-    btn.disabled=true; btn.textContent='Booking...';
-    const year=selectedDate.getFullYear();
-    const month=String(selectedDate.getMonth()+1).padStart(2,'0');
-    const day=String(selectedDate.getDate()).padStart(2,'0');
-    const bookingData={
-        type:'<?php echo $type;?>',
-        item_id:<?php echo $itemId;?>,
-        date:`${year}-${month}-${day}`,
-        time:selectedTime
+async function handleBooking() {
+    const btn = document.getElementById('bookBtn');
+    const btnHeader = document.getElementById('bookBtnHeader');
+    
+    btn.disabled = true;
+    btnHeader.disabled = true;
+    btn.textContent = 'Booking...';
+    btnHeader.innerHTML = '<svg style="width: 18px; height: 18px; animation: spin 1s linear infinite;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10" opacity="0.25"></circle><path d="M12 2a10 10 0 0 1 10 10" opacity="0.75"></path></svg><span>Booking...</span>';
+    
+    const year = selectedDate.getFullYear();
+    const month = String(selectedDate.getMonth() + 1).padStart(2, '0');
+    const day = String(selectedDate.getDate()).padStart(2, '0');
+    const bookingData = {
+        type: '<?php echo $type;?>',
+        item_id: <?php echo $itemId;?>,
+        date: `${year}-${month}-${day}`,
+        time: selectedTime
     };
-    <?php if($type=='service'):?> bookingData.purpose=document.getElementById('servicePurpose').value;
-    <?php else: ?> bookingData.purpose=document.getElementById('doctorPurpose').value; <?php endif; ?>
-    try{
-        const resp=await fetch('api/book-appointment.php',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(bookingData)});
-        const data=await resp.json();
+    
+    <?php if($type=='service'):?> bookingData.purpose = document.getElementById('servicePurpose').value;
+    <?php else: ?> bookingData.purpose = document.getElementById('doctorPurpose').value; <?php endif; ?>
+    
+    try {
+        const resp = await fetch('api/book-appointment.php', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(bookingData)
+        });
+        const data = await resp.json();
+        
         if(data.success) { 
             showSuccessModal(); 
+        } else { 
+            alert('Error: ' + (data.message || 'Unknown')); 
+            btn.disabled = false;
+            btnHeader.disabled = false;
+            btn.textContent = 'Book Appointment';
+            btnHeader.innerHTML = '<svg style="width: 18px; height: 18px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M9 11l3 3L22 4"></path><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path></svg><span>Book Now</span>';
         }
-        else { alert('Error: '+(data.message||'Unknown')); btn.disabled=false; btn.textContent='Book Appointment'; }
-    }catch(e){ alert('Error booking.'); btn.disabled=false; btn.textContent='Book Appointment'; console.error(e);}
-});
+    } catch(e) { 
+        alert('Error booking.'); 
+        btn.disabled = false;
+        btnHeader.disabled = false;
+        btn.textContent = 'Book Appointment';
+        btnHeader.innerHTML = '<svg style="width: 18px; height: 18px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M9 11l3 3L22 4"></path><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path></svg><span>Book Now</span>';
+        console.error(e);
+    }
+}
+
+document.getElementById('bookBtn').addEventListener('click', handleBooking);
+document.getElementById('bookBtnHeader').addEventListener('click', handleBooking);
 
 function previousMonth(){ 
     const checkDate = new Date(currentDate);

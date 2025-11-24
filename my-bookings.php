@@ -443,40 +443,69 @@ $cancelled = array_filter($bookings, function($b) {
         ];
 
         grid.innerHTML = '';
+        
+        const now = new Date();
+        const isToday = selectedRescheduleDate && selectedRescheduleDate.toDateString() === now.toDateString();
+        
         timeSlots.forEach(time => {
             const slot = document.createElement('div');
             const isSelected = selectedRescheduleTime === time;
+            
+            // Check if time slot is in the past (for today only)
+            let isPastTime = false;
+            if (isToday) {
+                // Convert time string to 24-hour format for comparison
+                const timeParts = time.match(/(\d+):(\d+) (AM|PM)/);
+                if (timeParts) {
+                    let hours = parseInt(timeParts[1]);
+                    const minutes = parseInt(timeParts[2]);
+                    const period = timeParts[3];
+                    
+                    if (period === 'PM' && hours !== 12) hours += 12;
+                    if (period === 'AM' && hours === 12) hours = 0;
+                    
+                    const slotDateTime = new Date(selectedRescheduleDate);
+                    slotDateTime.setHours(hours, minutes, 0, 0);
+                    isPastTime = slotDateTime <= now;
+                }
+            }
+            
+            const isDisabled = isPastTime;
+            
             slot.textContent = time;
             slot.style.cssText = `
                 padding: 12px;
                 text-align: center;
                 border: 2px solid ${isSelected ? 'var(--primary-color)' : 'var(--border-color)'};
                 border-radius: 8px;
-                cursor: pointer;
+                cursor: ${isDisabled ? 'not-allowed' : 'pointer'};
                 font-weight: 600;
                 font-size: 14px;
-                background: ${isSelected ? 'var(--primary-color)' : 'white'};
+                background: ${isSelected ? 'var(--primary-color)' : (isDisabled ? 'var(--bg-tertiary)' : 'white')};
                 color: ${isSelected ? 'white' : 'var(--text-primary)'};
+                opacity: ${isDisabled ? '0.4' : '1'};
                 transition: all 0.2s;
             `;
 
-            slot.onmouseenter = () => {
-                if (!isSelected) {
-                    slot.style.borderColor = 'var(--primary-color)';
-                    slot.style.background = 'var(--bg-secondary)';
-                }
-            };
-            slot.onmouseleave = () => {
-                if (!isSelected) {
-                    slot.style.borderColor = 'var(--border-color)';
-                    slot.style.background = 'white';
-                }
-            };
-            slot.onclick = () => {
-                selectedRescheduleTime = time;
-                loadRescheduleTimeSlots();
-                updateRescheduleButton();
-            };
+            if (!isDisabled) {
+                slot.onmouseenter = () => {
+                    if (!isSelected) {
+                        slot.style.borderColor = 'var(--primary-color)';
+                        slot.style.background = 'var(--bg-secondary)';
+                    }
+                };
+                slot.onmouseleave = () => {
+                    if (!isSelected) {
+                        slot.style.borderColor = 'var(--border-color)';
+                        slot.style.background = 'white';
+                    }
+                };
+                slot.onclick = () => {
+                    selectedRescheduleTime = time;
+                    loadRescheduleTimeSlots();
+                    updateRescheduleButton();
+                };
+            }
 
             grid.appendChild(slot);
         });

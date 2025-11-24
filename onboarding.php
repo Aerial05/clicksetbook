@@ -30,24 +30,56 @@ include 'header.php';
     <!-- Onboarding 1: Book Appointments Online -->
     <div id="onboarding-1" class="onboarding-slide active">
         <div class="onboarding-image">
-            <div class="medical-image">
-                <i class="fas fa-stethoscope"></i>
-                <div class="medical-clipboard"></div>
+            <div class="onboarding-visual">
+                <!-- Floating Background Elements -->
+                <div class="floating-shape shape-1"></div>
+                <div class="floating-shape shape-2"></div>
+                <div class="floating-shape shape-3"></div>
+                
+                <!-- Main Illustration -->
+                <div class="illustration-container">
+                    <div class="calendar-card">
+                        <div class="calendar-header">
+                            <div class="calendar-month"></div>
+                            <div class="calendar-month-small"></div>
+                        </div>
+                        <div class="calendar-grid">
+                            <div class="calendar-day"></div>
+                            <div class="calendar-day"></div>
+                            <div class="calendar-day"></div>
+                            <div class="calendar-day"></div>
+                            <div class="calendar-day active"></div>
+                            <div class="calendar-day"></div>
+                        </div>
+                    </div>
+                    <div class="appointment-icon">
+                        <i class="fas fa-stethoscope"></i>
+                    </div>
+                    <div class="checkmark-circle">
+                        <i class="fas fa-check"></i>
+                    </div>
+                </div>
             </div>
         </div>
         <div class="onboarding-content">
-            <h2 class="onboarding-title">Book Appointments Online</h2>
-            <p class="onboarding-description">
-                Schedule your medical appointments effortlessly from the comfort of your home, anytime and anywhere.
-            </p>
-            <button class="btn-primary" onclick="nextOnboarding()">Next</button>
-            <div class="onboarding-progress">
-                <div class="progress-dots">
-                    <span class="dot active"></span>
-                    <span class="dot"></span>
-                    <span class="dot"></span>
+            <div class="content-wrapper">
+                <div class="badge-pill">Step 1 of 3</div>
+                <h2 class="onboarding-title">Book Appointments Online</h2>
+                <p class="onboarding-description">
+                    Schedule your medical appointments effortlessly from the comfort of your home, anytime and anywhere.
+                </p>
+                <button class="btn-primary modern-btn" onclick="nextOnboarding()">
+                    Continue
+                    <i class="fas fa-arrow-right"></i>
+                </button>
+                <div class="onboarding-progress">
+                    <div class="progress-dots">
+                        <span class="dot active"></span>
+                        <span class="dot"></span>
+                        <span class="dot"></span>
+                    </div>
+                    <a href="create-account.php" class="skip-link">Skip for now</a>
                 </div>
-                <a href="create-account.php" class="skip-link">Skip</a>
             </div>
         </div>
     </div>
@@ -55,27 +87,59 @@ include 'header.php';
     <!-- Onboarding 2: Connect with Specialists -->
     <div id="onboarding-2" class="onboarding-slide">
         <div class="onboarding-image">
-            <div class="doctor-image">
-                <div class="doctor-avatar">
-                    <div class="doctor-face"></div>
-                    <div class="doctor-hair"></div>
-                    <div class="doctor-coat"></div>
+            <div class="onboarding-visual">
+                <!-- Floating Background Elements -->
+                <div class="floating-shape shape-1"></div>
+                <div class="floating-shape shape-2"></div>
+                <div class="floating-shape shape-3"></div>
+                
+                <!-- Main Illustration -->
+                <div class="illustration-container">
+                    <div class="doctor-profile-card">
+                        <div class="doctor-avatar-modern">
+                            <div class="avatar-img"></div>
+                            <div class="online-badge"></div>
+                        </div>
+                        <div class="doctor-info">
+                            <div class="info-line"></div>
+                            <div class="info-line short"></div>
+                        </div>
+                        <div class="rating-stars">
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                        </div>
+                    </div>
+                    <div class="specialist-badge">
+                        <i class="fas fa-user-md"></i>
+                    </div>
+                    <div class="message-bubble">
+                        <i class="fas fa-comment-medical"></i>
+                    </div>
                 </div>
             </div>
         </div>
         <div class="onboarding-content">
-            <h2 class="onboarding-title">Connect with Specialists</h2>
-            <p class="onboarding-description">
-                Access a network of qualified specialists ready to provide personalized care and guidance for your health needs.
-            </p>
-            <button class="btn-primary" onclick="nextOnboarding()">Next</button>
-            <div class="onboarding-progress">
-                <div class="progress-dots">
-                    <span class="dot"></span>
-                    <span class="dot active"></span>
-                    <span class="dot"></span>
+            <div class="content-wrapper">
+                <div class="badge-pill">Step 2 of 3</div>
+                <h2 class="onboarding-title">Connect with Specialists</h2>
+                <p class="onboarding-description">
+                    Access a network of qualified specialists ready to provide personalized care and guidance for your health needs.
+                </p>
+                <button class="btn-primary modern-btn" onclick="nextOnboarding()">
+                    Continue
+                    <i class="fas fa-arrow-right"></i>
+                </button>
+                <div class="onboarding-progress">
+                    <div class="progress-dots">
+                        <span class="dot"></span>
+                        <span class="dot active"></span>
+                        <span class="dot"></span>
+                    </div>
+                    <a href="create-account.php" class="skip-link">Skip for now</a>
                 </div>
-                <a href="create-account.php" class="skip-link">Skip</a>
             </div>
         </div>
     </div>
@@ -83,42 +147,56 @@ include 'header.php';
     <!-- Onboarding 3: Thousands of Clinics -->
     <div id="onboarding-3" class="onboarding-slide">
         <div class="onboarding-image">
-            <div class="clinics-image">
-                <div class="clinic-buildings">
-                    <div class="building building-1"></div>
-                    <div class="building building-2"></div>
-                    <div class="building building-3"></div>
-                    <div class="building building-4"></div>
-                </div>
-                <div class="clinic-pins">
-                    <div class="pin pin-1">
-                        <i class="fas fa-map-marker-alt"></i>
+            <div class="onboarding-visual">
+                <!-- Floating Background Elements -->
+                <div class="floating-shape shape-1"></div>
+                <div class="floating-shape shape-2"></div>
+                <div class="floating-shape shape-3"></div>
+                
+                <!-- Main Illustration -->
+                <div class="illustration-container">
+                    <div class="map-container">
+                        <div class="map-bg"></div>
+                        <div class="location-pin pin-1">
+                            <i class="fas fa-hospital"></i>
+                        </div>
+                        <div class="location-pin pin-2">
+                            <i class="fas fa-hospital"></i>
+                        </div>
+                        <div class="location-pin pin-3">
+                            <i class="fas fa-hospital"></i>
+                        </div>
+                        <div class="location-pin pin-4">
+                            <i class="fas fa-hospital"></i>
+                        </div>
+                        <div class="pulse-circle"></div>
                     </div>
-                    <div class="pin pin-2">
-                        <i class="fas fa-map-marker-alt"></i>
+                    <div class="clinic-counter">
+                        <div class="counter-number">1000+</div>
+                        <div class="counter-label"></div>
                     </div>
-                    <div class="pin pin-3">
-                        <i class="fas fa-map-marker-alt"></i>
-                    </div>
-                </div>
-                <div class="main-heart">
-                    <i class="fas fa-heart"></i>
                 </div>
             </div>
         </div>
         <div class="onboarding-content">
-            <h2 class="onboarding-title">Thousands of Clinics</h2>
-            <p class="onboarding-description">
-                Choose from thousands of clinics nearby, ensuring you find the right facility for your health services.
-            </p>
-            <button class="btn-primary" onclick="window.location.href='create-account.php'">Get Started</button>
-            <div class="onboarding-progress">
-                <div class="progress-dots">
-                    <span class="dot"></span>
-                    <span class="dot"></span>
-                    <span class="dot active"></span>
+            <div class="content-wrapper">
+                <div class="badge-pill">Step 3 of 3</div>
+                <h2 class="onboarding-title">Thousands of Clinics</h2>
+                <p class="onboarding-description">
+                    Choose from thousands of clinics nearby, ensuring you find the right facility for your health services.
+                </p>
+                <button class="btn-primary modern-btn" onclick="window.location.href='create-account.php'">
+                    Get Started
+                    <i class="fas fa-arrow-right"></i>
+                </button>
+                <div class="onboarding-progress">
+                    <div class="progress-dots">
+                        <span class="dot"></span>
+                        <span class="dot"></span>
+                        <span class="dot active"></span>
+                    </div>
+                    <a href="signin.php" class="skip-link">Already have an account? Sign in</a>
                 </div>
-                <a href="create-account.php" class="skip-link">Skip</a>
             </div>
         </div>
     </div>
