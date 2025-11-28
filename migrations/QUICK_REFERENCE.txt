@@ -1,0 +1,168 @@
+╔══════════════════════════════════════════════════════════════╗
+║                                                              ║
+║        RESCHEDULE TRACKING - PHASE 1 QUICK REFERENCE         ║
+║                                                              ║
+╚══════════════════════════════════════════════════════════════╝
+
+📂 LOCATION: C:\xampp\htdocs\clicksetbook\migrations\
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🚀 QUICK START (Easiest Method)
+
+   1. Double-click: run_migration.bat
+   2. Select option: 1
+   3. Enter MySQL password (or just press Enter if none)
+   4. Done! ✓
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+📋 FILES OVERVIEW
+
+   ✓ add_reschedule_fields.sql        Main migration
+   ✓ rollback_reschedule_fields.sql   Undo migration
+   ✓ setup_migration.ps1              PowerShell script
+   ✓ run_migration.bat                Easy launcher
+   ✓ README_RESCHEDULE_MIGRATION.md   Full docs
+   ✓ PHASE_1_CHECKLIST.md             This checklist
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🗄️ DATABASE CHANGES
+
+   NEW FIELDS (7):
+   • requested_date          → New date user wants
+   • requested_time          → New time user wants
+   • reschedule_reason       → Why they're rescheduling
+   • reschedule_requested_at → When they requested
+   • reschedule_approved_by  → Which admin processed it
+   • reschedule_response_at  → When admin responded
+   • reschedule_status       → pending/approved/declined
+
+   NEW INDEXES (2):
+   • idx_reschedule_request  → Fast filtering
+   • idx_reschedule_dates    → Date/time lookups
+
+   NEW CONSTRAINT (1):
+   • fk_reschedule_approved_by → Links to users table
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+✅ VERIFICATION (Run in phpMyAdmin)
+
+   Check fields:
+   DESCRIBE appointments;
+
+   Check indexes:
+   SHOW INDEX FROM appointments WHERE Key_name LIKE '%reschedule%';
+
+   Test insert:
+   UPDATE appointments 
+   SET reschedule_request = 1,
+       requested_date = '2025-12-05',
+       requested_time = '14:00:00',
+       reschedule_status = 'pending'
+   WHERE id = 1;
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🔄 ROLLBACK (If Needed)
+
+   1. Double-click: run_migration.bat
+   2. Select option: 2
+   3. Type: yes
+   4. Enter password
+   5. Reverted! ✓
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🎯 EXPECTED WORKFLOW
+
+   USER SIDE:
+   1. User opens reschedule modal
+   2. Selects new date/time
+   3. Adds reason (optional)
+   4. Clicks "Confirm Reschedule"
+   5. Status shows "Reschedule Pending"
+
+   ADMIN SIDE:
+   1. Admin sees appointment with badge "🔄 Reschedule Requested"
+   2. Views original vs requested date/time
+   3. Clicks "Approve" or "Decline"
+   4. User receives notification
+
+   DATABASE FLOW:
+   Request  → reschedule_request = 1, status = 'pending'
+   Approve  → Update appointment_date/time, status = 'approved'
+   Decline  → Keep original date/time, status = 'declined'
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+📊 STATUS TRACKING
+
+   NULL      → No reschedule request
+   'pending' → Waiting for admin response
+   'approved'→ Admin approved the change
+   'declined'→ Admin rejected the request
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🚦 NEXT STEPS
+
+   After Phase 1 complete:
+   
+   ☐ Phase 2: Backend API
+     • api/manage-booking.php (user reschedule)
+     • api/admin/appointments.php (approve/decline)
+   
+   ☐ Phase 3: User Frontend
+     • Connect modal to API
+     • Show pending status
+   
+   ☐ Phase 4: Admin Frontend
+     • Display reschedule requests
+     • Approve/decline buttons
+   
+   ☐ Phase 5: Notifications
+     • Send approval/decline emails
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+⚠️ IMPORTANT NOTES
+
+   ✓ Safe to run on production (adds nullable columns)
+   ✓ No data loss risk
+   ✓ Backward compatible with existing code
+   ✓ Can be rolled back if needed
+   ✗ Do NOT edit migration files after execution
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+💡 TROUBLESHOOTING
+
+   Error: "Table doesn't exist"
+   → Check database name in migration file
+
+   Error: "Column already exists"
+   → Migration was already run, use rollback first
+
+   Error: "Access denied"
+   → Check MySQL password
+
+   Error: "Foreign key constraint fails"
+   → Verify users table exists
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+📞 SUPPORT
+
+   Read: README_RESCHEDULE_MIGRATION.md (detailed guide)
+   Check: PHASE_1_CHECKLIST.md (step-by-step)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Date: November 28, 2025
+Version: 1.0
+Status: READY TO DEPLOY ✓
+
+╚══════════════════════════════════════════════════════════════╝

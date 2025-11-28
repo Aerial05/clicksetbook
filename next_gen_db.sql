@@ -65,7 +65,14 @@ CREATE TABLE `appointments` (
   `reschedule_request` tinyint(1) DEFAULT 0,
   `cancel_reason` varchar(255) DEFAULT NULL,
   `cancel_details` text DEFAULT NULL,
-  `cancel_requested_at` datetime DEFAULT NULL
+  `cancel_requested_at` datetime DEFAULT NULL,
+  `requested_date` date DEFAULT NULL COMMENT 'New date requested by user for reschedule',
+  `requested_time` time DEFAULT NULL COMMENT 'New time requested by user for reschedule',
+  `reschedule_reason` text DEFAULT NULL COMMENT 'Reason provided by user for rescheduling',
+  `reschedule_requested_at` datetime DEFAULT NULL COMMENT 'When reschedule was requested',
+  `reschedule_approved_by` int(11) DEFAULT NULL COMMENT 'Admin ID who approved/declined the reschedule',
+  `reschedule_response_at` datetime DEFAULT NULL COMMENT 'When admin responded to reschedule request',
+  `reschedule_status` enum('pending','approved','declined') DEFAULT NULL COMMENT 'Status of reschedule request'
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 
 --
@@ -468,6 +475,7 @@ ALTER TABLE `appointments`
   ADD KEY `service_id` (`service_id`),
   ADD KEY `created_by` (`created_by`),
   ADD KEY `cancelled_by` (`cancelled_by`),
+  ADD KEY `reschedule_approved_by` (`reschedule_approved_by`),
   ADD KEY `idx_appointment_number` (`appointment_number`),
   ADD KEY `idx_patient_email` (`patient_email`),
   ADD KEY `idx_doctor_date` (`doctor_id`,`appointment_date`),
@@ -477,7 +485,9 @@ ALTER TABLE `appointments`
   ADD KEY `idx_appointments_composite` (`appointment_date`,`appointment_time`,`status`),
   ADD KEY `idx_appointments_patient_lookup` (`patient_email`,`appointment_date`),
   ADD KEY `idx_appointment_date` (`appointment_date`),
-  ADD KEY `idx_patient_id` (`patient_id`);
+  ADD KEY `idx_patient_id` (`patient_id`),
+  ADD KEY `idx_reschedule_request` (`reschedule_request`,`reschedule_status`),
+  ADD KEY `idx_reschedule_dates` (`requested_date`,`requested_time`);
 
 --
 -- Indexes for table `appointment_history`
@@ -649,6 +659,22 @@ ALTER TABLE `notifications`
 --
 ALTER TABLE `users`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
+
+--
+-- Constraints for dumped tables
+--
+
+--
+-- Constraints for table `appointments`
+--
+ALTER TABLE `appointments`
+  ADD CONSTRAINT `appointments_ibfk_1` FOREIGN KEY (`patient_id`) REFERENCES `users` (`id`) ON DELETE SET NULL,
+  ADD CONSTRAINT `appointments_ibfk_2` FOREIGN KEY (`doctor_id`) REFERENCES `doctors` (`id`) ON DELETE SET NULL,
+  ADD CONSTRAINT `appointments_ibfk_3` FOREIGN KEY (`service_id`) REFERENCES `services` (`id`),
+  ADD CONSTRAINT `appointments_ibfk_4` FOREIGN KEY (`created_by`) REFERENCES `users` (`id`) ON DELETE SET NULL,
+  ADD CONSTRAINT `appointments_ibfk_5` FOREIGN KEY (`cancelled_by`) REFERENCES `users` (`id`) ON DELETE SET NULL,
+  ADD CONSTRAINT `fk_reschedule_approved_by` FOREIGN KEY (`reschedule_approved_by`) REFERENCES `users` (`id`) ON DELETE SET NULL ON UPDATE CASCADE;
+
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

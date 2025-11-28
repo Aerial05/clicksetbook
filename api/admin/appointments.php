@@ -55,6 +55,12 @@ try {
                     a.cancel_reason,
                     a.cancel_details,
                     a.cancel_requested_at,
+                    a.reschedule_request,
+                    a.requested_date,
+                    a.requested_time,
+                    a.reschedule_reason,
+                    a.reschedule_requested_at,
+                    a.reschedule_status,
                     s.name as service_name,
                     s.category as service_category,
                     CONCAT(u.first_name, ' ', u.last_name) as doctor_name
@@ -269,7 +275,8 @@ try {
                     SUM(CASE WHEN status = 'completed' THEN 1 ELSE 0 END) as completed,
                     SUM(CASE WHEN status = 'cancelled' THEN 1 ELSE 0 END) as cancelled,
                     SUM(CASE WHEN status = 'archived' THEN 1 ELSE 0 END) as archived,
-                    SUM(CASE WHEN appointment_date = CURDATE() THEN 1 ELSE 0 END) as today
+                    SUM(CASE WHEN appointment_date = CURDATE() THEN 1 ELSE 0 END) as today,
+                    SUM(CASE WHEN reschedule_request = 1 AND reschedule_status = 'pending' THEN 1 ELSE 0 END) as pending_reschedules
                 FROM appointments
             ");
             
@@ -278,6 +285,209 @@ try {
             echo json_encode([
                 'success' => true,
                 'stats' => $stats
+            ]);
+            break;
+            
+        case 'approveReschedule':
+            $appointmentId = $_POST['id'] ?? 0;
+            
+            // Get appointment details
+            $aptStmt = $pdo->prepare("
+                SELECT 
+                    a.*,
+                    s.name as service_name,
+                    CONCAT(u.first_name, ' ', u.last_name) as doctor_name
+                FROM appointments a
+                LEFT JOIN services s ON a.service_id = s.id
+                LEFT JOIN doctors d ON a.doctor_id = d.id
+                LEFT JOIN users u ON d.user_id = u.id
+                WHERE a.id = ?
+            ");
+            $aptStmt->execute([$appointmentId]);
+            $appointment = $aptStmt->fetch(PDO::FETCH_ASSOC);
+            
+            if (!$appointment) {
+                throw new Exception('Appointment not found');
+            }
+            
+            // Verify there's a pending reschedule request
+            if ($appointment['reschedule_request'] != 1 || $appointment['reschedule_status'] != 'pending') {
+                throw new Exception('No pending reschedule request found');
+            }
+            
+            // Verify requested date and time exist
+            if (!$appointment['requested_date'] || !$appointment['requested_time']) {
+                throw new Exception('Invalid reschedule request data');
+            }
+            
+            // Calculate new end_time based on service duration (default 30 minutes)
+            $requestedDateTime = new DateTime($appointment['requested_date'] . ' ' . $appointment['requested_time']);
+            $endDateTime = clone $requestedDateTime;
+            $endDateTime->modify('+30 minutes'); // TODO: Use actual service duration
+            
+            $oldDate = $appointment['appointment_date'];
+            $oldTime = $appointment['appointment_time'];
+            
+            // Update appointment with new date/time and mark reschedule as approved
+            $stmt = $pdo->prepare("
+                UPDATE appointments 
+                SET appointment_date = ?,
+                    appointment_time = ?,
+                    end_time = ?,
+                    reschedule_request = 0,
+                    reschedule_status = 'approved',
+                    reschedule_approved_by = ?,
+                    reschedule_response_at = NOW(),
+                    updated_at = NOW()
+                WHERE id = ?
+            ");
+            
+            $stmt->execute([
+                $appointment['requested_date'],
+                $appointment['requested_time'],
+                $endDateTime->format('H:i:s'),
+                getCurrentUser()['id'],
+                $appointmentId
+            ]);
+            
+            // Log to appointment_history
+            $historyStmt = $pdo->prepare("
+                INSERT INTO appointment_history (appointment_id, old_status, new_status, changed_by, change_reason, created_at)
+                VALUES (?, ?, ?, ?, ?, NOW())
+            ");
+            $changeReason = "Rescheduled from {$oldDate} {$oldTime} to {$appointment['requested_date']} {$appointment['requested_time']}";
+            $historyStmt->execute([
+                $appointmentId,
+                'reschedule_pending',
+                'reschedule_approved',
+                getCurrentUser()['id'],
+                $changeReason
+            ]);
+            
+            // Send notification to patient
+            $newDate = date('F j, Y', strtotime($appointment['requested_date']));
+            $newTime = date('g:i A', strtotime($appointment['requested_time']));
+            $oldDateFormatted = date('F j, Y', strtotime($oldDate));
+            $oldTimeFormatted = date('g:i A', strtotime($oldTime));
+            
+            $serviceName = $appointment['service_name'] ?: 'Dr. ' . $appointment['doctor_name'];
+            
+            $notificationTitle = "Reschedule Request Approved";
+            $notificationMessage = "Good news! Your reschedule request has been approved. Your appointment for {$serviceName} has been moved from {$oldDateFormatted} at {$oldTimeFormatted} to {$newDate} at {$newTime}.";
+            
+            if ($appointment['patient_email']) {
+                $notifStmt = $pdo->prepare("
+                    INSERT INTO notifications 
+                    (user_id, title, appointment_id, recipient_email, notification_type, template_type, subject, message_content, status, is_read, created_at) 
+                    VALUES (?, ?, ?, ?, 'email', 'reschedule_approved', ?, ?, 'pending', 0, NOW())
+                ");
+                $notifStmt->execute([
+                    $appointment['patient_id'],
+                    $notificationTitle,
+                    $appointmentId,
+                    $appointment['patient_email'],
+                    $notificationTitle,
+                    $notificationMessage
+                ]);
+            }
+            
+            echo json_encode([
+                'success' => true,
+                'message' => 'Reschedule request approved successfully'
+            ]);
+            break;
+            
+        case 'declineReschedule':
+            $appointmentId = $_POST['id'] ?? 0;
+            $declineReason = $_POST['decline_reason'] ?? 'No reason provided';
+            
+            // Get appointment details
+            $aptStmt = $pdo->prepare("
+                SELECT 
+                    a.*,
+                    s.name as service_name,
+                    CONCAT(u.first_name, ' ', u.last_name) as doctor_name
+                FROM appointments a
+                LEFT JOIN services s ON a.service_id = s.id
+                LEFT JOIN doctors d ON a.doctor_id = d.id
+                LEFT JOIN users u ON d.user_id = u.id
+                WHERE a.id = ?
+            ");
+            $aptStmt->execute([$appointmentId]);
+            $appointment = $aptStmt->fetch(PDO::FETCH_ASSOC);
+            
+            if (!$appointment) {
+                throw new Exception('Appointment not found');
+            }
+            
+            // Verify there's a pending reschedule request
+            if ($appointment['reschedule_request'] != 1 || $appointment['reschedule_status'] != 'pending') {
+                throw new Exception('No pending reschedule request found');
+            }
+            
+            // Keep original date/time, just mark reschedule as declined and clear requested fields
+            $stmt = $pdo->prepare("
+                UPDATE appointments 
+                SET reschedule_request = 0,
+                    reschedule_status = 'declined',
+                    reschedule_approved_by = ?,
+                    reschedule_response_at = NOW(),
+                    requested_date = NULL,
+                    requested_time = NULL,
+                    reschedule_reason = CONCAT(COALESCE(reschedule_reason, ''), ' [Declined: ', ?, ']'),
+                    updated_at = NOW()
+                WHERE id = ?
+            ");
+            
+            $stmt->execute([
+                getCurrentUser()['id'],
+                $declineReason,
+                $appointmentId
+            ]);
+            
+            // Log to appointment_history
+            $historyStmt = $pdo->prepare("
+                INSERT INTO appointment_history (appointment_id, old_status, new_status, changed_by, change_reason, created_at)
+                VALUES (?, ?, ?, ?, ?, NOW())
+            ");
+            $historyStmt->execute([
+                $appointmentId,
+                'reschedule_pending',
+                'reschedule_declined',
+                getCurrentUser()['id'],
+                $declineReason
+            ]);
+            
+            // Send notification to patient
+            $originalDate = date('F j, Y', strtotime($appointment['appointment_date']));
+            $originalTime = date('g:i A', strtotime($appointment['appointment_time']));
+            $requestedDate = date('F j, Y', strtotime($appointment['requested_date']));
+            $requestedTime = date('g:i A', strtotime($appointment['requested_time']));
+            
+            $serviceName = $appointment['service_name'] ?: 'Dr. ' . $appointment['doctor_name'];
+            
+            $notificationTitle = "Reschedule Request Declined";
+            $notificationMessage = "Your reschedule request for {$serviceName} has been declined. Your appointment remains scheduled for {$originalDate} at {$originalTime}. Requested date was {$requestedDate} at {$requestedTime}. Reason: {$declineReason}. You may submit a new reschedule request with a different date if needed.";
+            
+            if ($appointment['patient_email']) {
+                $notifStmt = $pdo->prepare("
+                    INSERT INTO notifications 
+                    (user_id, title, appointment_id, recipient_email, notification_type, template_type, subject, message_content, status, is_read, created_at) 
+                    VALUES (?, ?, ?, ?, 'email', 'reschedule_declined', ?, ?, 'pending', 0, NOW())
+                ");
+                $notifStmt->execute([
+                    $appointment['patient_id'],
+                    $notificationTitle,
+                    $appointmentId,
+                    $appointment['patient_email'],
+                    $notificationTitle,
+                    $notificationMessage
+                ]);
+            }
+            
+            echo json_encode([
+                'success' => true,
+                'message' => 'Reschedule request declined successfully'
             ]);
             break;
             

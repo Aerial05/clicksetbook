@@ -17,6 +17,7 @@ $stats = [
     'total_doctors' => 0,
     'total_services' => 0,
     'pending_appointments' => 0,
+    'pending_reschedules' => 0,
     'today_appointments' => 0,
     'total_appointments' => 0
 ];
@@ -36,6 +37,10 @@ $stats['total_services'] = $stmt->fetch()['count'];
 // Get pending appointments
 $stmt = $pdo->query("SELECT COUNT(*) as count FROM appointments WHERE status = 'pending'");
 $stats['pending_appointments'] = $stmt->fetch()['count'];
+
+// Get pending reschedules
+$stmt = $pdo->query("SELECT COUNT(*) as count FROM appointments WHERE reschedule_request = 1 AND reschedule_status = 'pending'");
+$stats['pending_reschedules'] = $stmt->fetch()['count'];
 
 // Get today's appointments
 $stmt = $pdo->prepare("SELECT COUNT(*) as count FROM appointments WHERE DATE(appointment_date) = CURDATE()");
@@ -1189,6 +1194,11 @@ $stats['total_appointments'] = $stmt->fetch()['count'];
 
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         @keyframes scaleIn { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        @keyframes pulse { 
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(1.2); }
+        }
+        .stat-card { position: relative; transition: transform 0.2s ease; }
     </style>
     </style>
 </head>
@@ -1205,6 +1215,22 @@ $stats['total_appointments'] = $stmt->fetch()['count'];
             <div class="confirm-buttons">
                 <button class="btn btn-secondary confirm-btn-cancel" id="confirmCancel">Cancel</button>
                 <button class="btn btn-primary confirm-btn-ok" id="confirmOk">OK</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Decline Reason Modal -->
+    <div class="confirm-overlay" id="declineReasonModal">
+        <div class="confirm-dialog">
+            <div class="confirm-icon warning">
+                <svg width="48" height="48" viewBox="0 0 48 48" fill="none"><path d="M24 16v8m0 8h.02M19.237 8.486a5 5 0 019.526 0l13.5 36A5 5 0 0137.5 52h-27a5 5 0 01-4.763-7.514l13.5-36z" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+            <h3 class="confirm-title">Decline Reschedule Request</h3>
+            <p class="confirm-message">Please provide a reason for declining this reschedule request:</p>
+            <textarea id="declineReasonInput" class="form-control" rows="4" placeholder="Enter your reason here..." style="width: 100%; padding: 12px; border: 1px solid #d1d5db; border-radius: 8px; font-size: 14px; font-family: inherit; resize: vertical; margin-bottom: 20px;"></textarea>
+            <div class="confirm-buttons">
+                <button class="btn btn-secondary" id="declineReasonCancel">Cancel</button>
+                <button class="btn btn-primary" id="declineReasonSubmit">Submit</button>
             </div>
         </div>
     </div>
@@ -1326,6 +1352,16 @@ $stats['total_appointments'] = $stmt->fetch()['count'];
                             <div class="stat-card-label">Pending</div>
                         </div>
                     </div>
+                    <div class="stat-card" style="cursor: pointer;" onclick="showPendingReschedules()">
+                        <div class="stat-card-icon" style="background: linear-gradient(135deg, #fed7aa 0%, #fdba74 100%); color: #9a3412;">🔄</div>
+                        <div class="stat-card-content">
+                            <div class="stat-card-value"><?php echo $stats['pending_reschedules']; ?></div>
+                            <div class="stat-card-label">Reschedule Requests</div>
+                        </div>
+                        <?php if ($stats['pending_reschedules'] > 0): ?>
+                        <div style="position: absolute; top: 8px; right: 8px; width: 8px; height: 8px; background: #f59e0b; border-radius: 50%; animation: pulse 2s infinite;"></div>
+                        <?php endif; ?>
+                    </div>
                     <div class="stat-card">
                         <div class="stat-card-icon blue">📅</div>
                         <div class="stat-card-content">
@@ -1378,6 +1414,15 @@ $stats['total_appointments'] = $stmt->fetch()['count'];
                                 <option value="completed">Completed</option>
                                 <option value="cancelled">Cancelled</option>
                                 <option value="archived">Archived</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="filter-reschedule">Reschedule Status</label>
+                            <select id="filter-reschedule" class="form-control">
+                                <option value="">All</option>
+                                <option value="pending">Pending Reschedules</option>
+                                <option value="approved">Approved Reschedules</option>
+                                <option value="declined">Declined Reschedules</option>
                             </select>
                         </div>
                         <div>
@@ -2428,6 +2473,7 @@ $stats['total_appointments'] = $stmt->fetch()['count'];
         // Load all appointments
         function loadAllAppointments() {
             const status = document.getElementById('filter-status').value;
+            const reschedule = document.getElementById('filter-reschedule').value;
             const date = document.getElementById('filter-date').value;
             const sort = document.getElementById('filter-sort').value;
             const search = document.getElementById('filter-search').value.toLowerCase();
@@ -2448,6 +2494,20 @@ $stats['total_appointments'] = $stmt->fetch()['count'];
                         const data = JSON.parse(text);
                         if (data.success) {
                             let appointments = data.appointments;
+                            
+                            // Apply reschedule filter
+                            if (reschedule) {
+                                appointments = appointments.filter(apt => {
+                                    if (reschedule === 'pending') {
+                                        return apt.reschedule_request == 1 && apt.reschedule_status === 'pending';
+                                    } else if (reschedule === 'approved') {
+                                        return apt.reschedule_status === 'approved';
+                                    } else if (reschedule === 'declined') {
+                                        return apt.reschedule_status === 'declined';
+                                    }
+                                    return true;
+                                });
+                            }
                             
                             // Apply search filter
                             if (search) {
@@ -2624,6 +2684,36 @@ $stats['total_appointments'] = $stmt->fetch()['count'];
                                     <span>${apt.patient_email}</span>
                                 </div>
                             ` : ''}
+                            ${apt.reschedule_request == 1 && apt.reschedule_status === 'pending' ? `
+                                <div style="margin-top: 10px; padding: 12px; background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%); border-left: 4px solid #f59e0b; border-radius: 6px; box-shadow: 0 1px 3px rgba(245, 158, 11, 0.1);">
+                                    <div style="font-size: 11px; font-weight: 700; color: #b45309; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; display: flex; align-items: center; gap: 4px;">
+                                        <svg style="width: 14px; height: 14px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                                            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                                            <line x1="16" y1="2" x2="16" y2="6"></line>
+                                            <line x1="8" y1="2" x2="8" y2="6"></line>
+                                            <line x1="3" y1="10" x2="21" y2="10"></line>
+                                        </svg>
+                                        Reschedule Request
+                                    </div>
+                                    <div style="display: grid; gap: 6px;">
+                                        <div style="font-size: 12px; color: #78350f; display: flex; align-items: center; gap: 6px;">
+                                            <span style="font-weight: 600; min-width: 65px;">Original:</span>
+                                            <span style="text-decoration: line-through; opacity: 0.7;">${formatDate(apt.appointment_date)} at ${apt.appointment_time}</span>
+                                        </div>
+                                        <div style="font-size: 12px; color: #92400e; display: flex; align-items: center; gap: 6px;">
+                                            <span style="font-weight: 600; min-width: 65px;">Requested:</span>
+                                            <span style="font-weight: 600; color: #b45309;">${formatDate(apt.requested_date)} at ${apt.requested_time}</span>
+                                        </div>
+                                    </div>
+                                    ${apt.reschedule_reason ? `
+                                        <div style="margin-top: 8px; padding-top: 8px; border-top: 1px solid rgba(245, 158, 11, 0.2);">
+                                            <div style="font-size: 11px; color: #78350f; line-height: 1.5;">
+                                                <span style="font-weight: 600;">Reason:</span> ${apt.reschedule_reason}
+                                            </div>
+                                        </div>
+                                    ` : ''}
+                                </div>
+                            ` : ''}
                             ${apt.status === 'cancelled' && apt.cancel_reason ? `
                                 <div style="margin-top: 8px; padding: 8px; background: #fef2f2; border-left: 3px solid #ef4444; border-radius: 4px;">
                                     <div style="font-size: 12px; font-weight: 600; color: #dc2626; margin-bottom: 4px;">Cancellation Reason:</div>
@@ -2634,9 +2724,26 @@ $stats['total_appointments'] = $stmt->fetch()['count'];
                         </div>
                         <div style="text-align: right;">
                             <span class="badge badge-${getStatusColor(apt.status)}">${apt.status}</span>
+                            ${apt.reschedule_request == 1 && apt.reschedule_status === 'pending' ? `
+                                <span class="badge badge-orange" style="margin-left: 6px;">Reschedule</span>
+                            ` : ''}
                             ${!isCompact && apt.status !== 'archived' ? `
                                 <div style="margin-top: 8px; display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end;">
-                                    ${apt.status === 'cancelled' ? `
+                                    ${apt.reschedule_request == 1 && apt.reschedule_status === 'pending' ? `
+                                        <button data-action="approve-reschedule" data-id="${apt.id}" class="btn btn-sm btn-success appointment-action-btn">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                <polyline points="20 6 9 17 4 12"></polyline>
+                                            </svg>
+                                            Approve Reschedule
+                                        </button>
+                                        <button data-action="decline-reschedule" data-id="${apt.id}" class="btn btn-sm btn-danger appointment-action-btn">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                <line x1="18" y1="6" x2="6" y2="18"></line>
+                                                <line x1="6" y1="6" x2="18" y2="18"></line>
+                                            </svg>
+                                            Decline Reschedule
+                                        </button>
+                                    ` : apt.status === 'cancelled' ? `
                                         <button data-action="archive" data-id="${apt.id}" class="btn btn-sm btn-archive appointment-action-btn">
                                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                                 <polyline points="21 8 21 21 3 21 3 8"></polyline>
@@ -3187,6 +3294,183 @@ $stats['total_appointments'] = $stmt->fetch()['count'];
             return colors[status] || 'gray';
         }
 
+        // Approve reschedule request
+        function approveReschedule(id) {
+            // Find appointment in either allRecentAppointments or current view
+            let appointment = null;
+            if (allRecentAppointments && allRecentAppointments.length > 0) {
+                appointment = allRecentAppointments.find(apt => apt.id == id);
+            }
+            
+            if (!appointment) {
+                showToast('error', 'Error', 'Appointment not found');
+                return;
+            }
+            
+            const message = `Approve reschedule from ${formatDate(appointment.appointment_date)} ${appointment.appointment_time} to ${formatDate(appointment.requested_date)} ${appointment.requested_time}?`;
+            
+            showConfirm('success', 'Approve Reschedule?', message, () => {
+                const formData = new FormData();
+                formData.append('action', 'approveReschedule');
+                formData.append('id', id);
+                
+                fetch('api/admin/appointments.php', {
+                    method: 'POST',
+                    credentials: 'same-origin',
+                    body: formData
+                })
+                .then(r => r.json())
+                .then(data => {
+                    if (data.success) {
+                        showToast('success', 'Approved', 'Reschedule request approved successfully!');
+                        loadAllAppointments();
+                    } else {
+                        showToast('error', 'Error', data.message || 'Failed to approve reschedule');
+                    }
+                })
+                .catch(err => {
+                    console.error('Approve reschedule error:', err);
+                    showToast('error', 'Error', 'An error occurred while approving the reschedule.');
+                });
+            });
+        }
+
+        // Decline reschedule request
+        function declineReschedule(id) {
+            // Find appointment in either allRecentAppointments or current view
+            let appointment = null;
+            if (allRecentAppointments && allRecentAppointments.length > 0) {
+                appointment = allRecentAppointments.find(apt => apt.id == id);
+            }
+            
+            if (!appointment) {
+                showToast('error', 'Error', 'Appointment not found');
+                return;
+            }
+            
+            // Show custom modal for decline reason
+            showDeclineReasonModal(id, appointment);
+        }
+
+        // Show custom decline reason modal
+        function showDeclineReasonModal(id, appointment) {
+            const modal = document.getElementById('declineReasonModal');
+            const input = document.getElementById('declineReasonInput');
+            const cancelBtn = document.getElementById('declineReasonCancel');
+            const submitBtn = document.getElementById('declineReasonSubmit');
+            
+            // Clear previous input
+            input.value = '';
+            
+            // Show modal
+            modal.classList.add('active');
+            input.focus();
+            
+            // Cancel button handler
+            const cancelHandler = () => {
+                modal.classList.remove('active');
+                cancelBtn.removeEventListener('click', cancelHandler);
+                submitBtn.removeEventListener('click', submitHandler);
+            };
+            
+            // Submit button handler
+            const submitHandler = () => {
+                const reason = input.value.trim();
+                
+                if (!reason) {
+                    showToast('error', 'Required', 'Please provide a reason for declining');
+                    input.focus();
+                    return;
+                }
+                
+                // Close modal
+                modal.classList.remove('active');
+                cancelBtn.removeEventListener('click', cancelHandler);
+                submitBtn.removeEventListener('click', submitHandler);
+                
+                // Show confirmation dialog
+                showConfirm('warning', 'Decline Reschedule?', `Keep original date ${formatDate(appointment.appointment_date)} ${appointment.appointment_time}?`, () => {
+                    const formData = new FormData();
+                    formData.append('action', 'declineReschedule');
+                    formData.append('id', id);
+                    formData.append('decline_reason', reason);
+                    
+                    fetch('api/admin/appointments.php', {
+                        method: 'POST',
+                        credentials: 'same-origin',
+                        body: formData
+                    })
+                    .then(r => r.json())
+                    .then(data => {
+                        if (data.success) {
+                            showToast('success', 'Declined', 'Reschedule request declined successfully!');
+                            loadAllAppointments();
+                        } else {
+                            showToast('error', 'Error', data.message || 'Failed to decline reschedule');
+                        }
+                    })
+                    .catch(err => {
+                        console.error('Decline reschedule error:', err);
+                        showToast('error', 'Error', 'An error occurred while declining the reschedule.');
+                    });
+                });
+            };
+            
+            // Attach event listeners
+            cancelBtn.addEventListener('click', cancelHandler);
+            submitBtn.addEventListener('click', submitHandler);
+            
+            // Allow Enter key to submit
+            input.addEventListener('keydown', function enterHandler(e) {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    submitHandler();
+                    input.removeEventListener('keydown', enterHandler);
+                }
+            });
+        }
+
+        // Show pending reschedules by switching to appointments section and filtering
+        function showPendingReschedules() {
+            // Switch to appointments section
+            document.querySelectorAll('.admin-section').forEach(section => section.classList.remove('active'));
+            document.getElementById('appointments-section').classList.add('active');
+            
+            // Update nav
+            document.querySelectorAll('.admin-nav-item').forEach(item => item.classList.remove('active'));
+            const appointmentsNavItem = document.querySelector('.admin-nav-item[data-section="appointments"]');
+            if (appointmentsNavItem) appointmentsNavItem.classList.add('active');
+            
+            // Set reschedule filter to pending
+            const rescheduleFilter = document.getElementById('filter-reschedule');
+            if (rescheduleFilter) {
+                rescheduleFilter.value = 'pending';
+            }
+            
+            // Clear status filter to show all statuses
+            const statusFilter = document.getElementById('filter-status');
+            if (statusFilter) {
+                statusFilter.value = '';
+            }
+            
+            // Load appointments with reschedule filter
+            setTimeout(() => {
+                loadAllAppointments();
+                
+                // Scroll to first reschedule request after data loads
+                setTimeout(() => {
+                    const firstReschedule = document.querySelector('[data-action="approve-reschedule"]');
+                    if (firstReschedule) {
+                        firstReschedule.closest('.card').scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        firstReschedule.closest('.card').style.boxShadow = '0 4px 12px rgba(245, 158, 11, 0.3)';
+                        setTimeout(() => {
+                            firstReschedule.closest('.card').style.boxShadow = '';
+                        }, 2000);
+                    }
+                }, 500);
+            }, 100);
+        }
+
         // Event delegation for appointment action buttons
         document.getElementById('appointments-list').addEventListener('click', function(e) {
             const btn = e.target.closest('.appointment-action-btn');
@@ -3207,11 +3491,16 @@ $stats['total_appointments'] = $stmt->fetch()['count'];
                 updateAppointmentStatus(id, 'completed');
             } else if (action === 'cancel') {
                 updateAppointmentStatus(id, 'cancelled');
+            } else if (action === 'approve-reschedule') {
+                approveReschedule(id);
+            } else if (action === 'decline-reschedule') {
+                declineReschedule(id);
             }
         });
 
         // Filter listeners
         document.getElementById('filter-status').addEventListener('change', loadAllAppointments);
+        document.getElementById('filter-reschedule').addEventListener('change', loadAllAppointments);
         document.getElementById('filter-date').addEventListener('change', loadAllAppointments);
         document.getElementById('filter-sort').addEventListener('change', loadAllAppointments);
         

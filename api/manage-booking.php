@@ -28,8 +28,13 @@ $bookingId = $input['id'] ?? 0;
 $cancelReason = $input['cancel_reason'] ?? null;
 $cancelDetails = $input['cancel_details'] ?? null;
 
+// Reschedule fields
+$requestedDate = $input['requested_date'] ?? null;
+$requestedTime = $input['requested_time'] ?? null;
+$rescheduleReason = $input['reschedule_reason'] ?? null;
+
 // Validate inputs
-if (!$bookingId || !in_array($action, ['cancel', 'complete'])) {
+if (!$bookingId || !in_array($action, ['cancel', 'complete', 'reschedule'])) {
     echo json_encode(['success' => false, 'message' => 'Invalid request']);
     exit();
 }
@@ -111,6 +116,61 @@ try {
         echo json_encode([
             'success' => true,
             'message' => 'Appointment marked as completed'
+        ]);
+    } elseif ($action == 'reschedule') {
+        // Validate reschedule data
+        if (!$requestedDate || !$requestedTime) {
+            echo json_encode(['success' => false, 'message' => 'Date and time are required']);
+            exit();
+        }
+        
+        // Validate date format and ensure it's in the future
+        $requestedDateTime = strtotime($requestedDate . ' ' . $requestedTime);
+        if (!$requestedDateTime || $requestedDateTime < time()) {
+            echo json_encode(['success' => false, 'message' => 'Invalid date/time or date is in the past']);
+            exit();
+        }
+        
+        // Check if there's already a pending reschedule request
+        if ($booking['reschedule_request'] == 1 && $booking['reschedule_status'] == 'pending') {
+            echo json_encode(['success' => false, 'message' => 'You already have a pending reschedule request for this appointment']);
+            exit();
+        }
+        
+        // Get full appointment details
+        $stmt = $pdo->prepare("
+            SELECT 
+                a.*,
+                s.name as service_name,
+                s.category as service_category,
+                COALESCE(CONCAT(u.first_name, ' ', u.last_name), CONCAT('Dr. ', d.specialty)) as doctor_name,
+                d.specialty as doctor_specialty
+            FROM appointments a
+            LEFT JOIN services s ON a.service_id = s.id
+            LEFT JOIN doctors d ON a.doctor_id = d.id
+            LEFT JOIN users u ON d.user_id = u.id
+            WHERE a.id = ?
+        ");
+        $stmt->execute([$bookingId]);
+        $appointmentDetails = $stmt->fetch(PDO::FETCH_ASSOC);
+        
+        // Update appointment with reschedule request
+        $stmt = $pdo->prepare("
+            UPDATE appointments SET 
+                reschedule_request = 1,
+                requested_date = ?,
+                requested_time = ?,
+                reschedule_reason = ?,
+                reschedule_requested_at = NOW(),
+                reschedule_status = 'pending',
+                updated_at = NOW()
+            WHERE id = ?
+        ");
+        $stmt->execute([$requestedDate, $requestedTime, $rescheduleReason, $bookingId]);
+        
+        echo json_encode([
+            'success' => true,
+            'message' => 'Reschedule request submitted successfully. Waiting for admin approval.'
         ]);
     }
     

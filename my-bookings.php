@@ -17,6 +17,13 @@ $stmt = $pdo->prepare("
         a.status,
         a.appointment_purpose,
         a.referrer,
+        a.reschedule_request,
+        a.requested_date,
+        a.requested_time,
+        a.reschedule_reason,
+        a.reschedule_status,
+        a.reschedule_requested_at,
+        a.reschedule_response_at,
         CONCAT(u.first_name, ' ', u.last_name) as doctor_name,
         d.specialty as doctor_specialty,
         s.name as service_name,
@@ -164,7 +171,55 @@ $cancelled = array_filter($bookings, function($b) {
                                 </div>
                             </div>
                             <span class="badge badge-primary">Scheduled</span>
+                            <?php if ($booking['reschedule_request'] == 1 && $booking['reschedule_status'] === 'pending'): ?>
+                                <span class="badge badge-orange" style="margin-left: 6px;">Reschedule Pending</span>
+                            <?php elseif ($booking['reschedule_status'] === 'approved'): ?>
+                                <span class="badge badge-green" style="margin-left: 6px;">Reschedule Approved</span>
+                            <?php elseif ($booking['reschedule_status'] === 'declined'): ?>
+                                <span class="badge badge-red" style="margin-left: 6px;">Reschedule Declined</span>
+                            <?php endif; ?>
                         </div>
+                        
+                        <?php if ($booking['reschedule_request'] == 1 && $booking['reschedule_status'] === 'pending'): ?>
+                        <div style="margin-bottom: 12px; padding: 12px; background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%); border-left: 4px solid #f59e0b; border-radius: 6px;">
+                            <div style="font-size: 11px; font-weight: 700; color: #b45309; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px;">
+                                ⏳ Waiting for Admin Approval
+                            </div>
+                            <div style="font-size: 12px; color: #78350f; margin-bottom: 4px;">
+                                <strong>Current Date:</strong> <?php echo date('M j, Y', strtotime($booking['appointment_date'])); ?> at <?php echo date('g:i A', strtotime($booking['appointment_time'])); ?>
+                            </div>
+                            <div style="font-size: 12px; color: #92400e;">
+                                <strong>Requested Date:</strong> <?php echo date('M j, Y', strtotime($booking['requested_date'])); ?> at <?php echo date('g:i A', strtotime($booking['requested_time'])); ?>
+                            </div>
+                            <?php if ($booking['reschedule_reason']): ?>
+                            <div style="margin-top: 6px; padding-top: 6px; border-top: 1px solid rgba(245, 158, 11, 0.2); font-size: 11px; color: #78350f;">
+                                <strong>Reason:</strong> <?php echo htmlspecialchars($booking['reschedule_reason']); ?>
+                            </div>
+                            <?php endif; ?>
+                        </div>
+                        <?php elseif ($booking['reschedule_status'] === 'declined'): ?>
+                        <div style="margin-bottom: 12px; padding: 12px; background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%); border-left: 4px solid #ef4444; border-radius: 6px;">
+                            <div style="font-size: 11px; font-weight: 700; color: #991b1b; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px;">
+                                ❌ Reschedule Request Declined
+                            </div>
+                            <div style="font-size: 12px; color: #7f1d1d; margin-bottom: 4px;">
+                                Your reschedule request was declined by the admin. Your appointment remains on:
+                            </div>
+                            <div style="font-size: 13px; font-weight: 600; color: #991b1b;">
+                                <?php echo date('M j, Y', strtotime($booking['appointment_date'])); ?> at <?php echo date('g:i A', strtotime($booking['appointment_time'])); ?>
+                            </div>
+                            <?php if ($booking['reschedule_reason'] && strpos($booking['reschedule_reason'], '[Declined:') !== false): ?>
+                            <div style="margin-top: 6px; padding-top: 6px; border-top: 1px solid rgba(239, 68, 68, 0.2); font-size: 11px; color: #7f1d1d;">
+                                <strong>Admin's Response:</strong> 
+                                <?php 
+                                    preg_match('/\[Declined: (.+?)\]/', $booking['reschedule_reason'], $matches);
+                                    echo htmlspecialchars($matches[1] ?? 'No reason provided');
+                                ?>
+                            </div>
+                            <?php endif; ?>
+                        </div>
+                        <?php endif; ?>
+                        
                         <div style="display: flex; gap: 16px; padding: 12px; background: var(--bg-secondary); border-radius: 8px; margin-bottom: 12px;">
                             <div style="display: flex; align-items: center; gap: 8px;">
                                 <svg style="width: 16px; height: 16px; color: var(--text-light);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -194,13 +249,23 @@ $cancelled = array_filter($bookings, function($b) {
                         </p>
                         <?php endif; ?>
                         <div class="actions">
-                            <button class="secondary" onclick="rescheduleBooking(<?php echo $booking['id']; ?>)" style="background: var(--bg-secondary); color: var(--primary-color); border: 1px solid var(--primary-color);">
-                                <svg style="width: 16px; height: 16px; margin-right: 4px; vertical-align: middle;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <polyline points="1 4 1 10 7 10"></polyline>
-                                    <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path>
-                                </svg>
-                                Reschedule
-                            </button>
+                            <?php if ($booking['reschedule_request'] == 1 && $booking['reschedule_status'] === 'pending'): ?>
+                                <button class="secondary" disabled style="background: #e5e7eb; color: #9ca3af; border: 1px solid #d1d5db; cursor: not-allowed; opacity: 0.6;">
+                                    <svg style="width: 16px; height: 16px; margin-right: 4px; vertical-align: middle;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <polyline points="1 4 1 10 7 10"></polyline>
+                                        <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path>
+                                    </svg>
+                                    Reschedule Pending
+                                </button>
+                            <?php else: ?>
+                                <button class="secondary" onclick="rescheduleBooking(<?php echo $booking['id']; ?>)" style="background: var(--bg-secondary); color: var(--primary-color); border: 1px solid var(--primary-color);">
+                                    <svg style="width: 16px; height: 16px; margin-right: 4px; vertical-align: middle;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <polyline points="1 4 1 10 7 10"></polyline>
+                                        <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path>
+                                    </svg>
+                                    Reschedule
+                                </button>
+                            <?php endif; ?>
                             <button class="danger" onclick="cancelBooking(<?php echo $booking['id']; ?>)">Cancel</button>
                         </div>
                     </div>
@@ -536,14 +601,90 @@ $cancelled = array_filter($bookings, function($b) {
         if (selectedRescheduleDate && selectedRescheduleTime) {
             const dateStr = selectedRescheduleDate.toLocaleDateString('en-US', {month: 'long', day: 'numeric', year: 'numeric'});
             const reason = document.getElementById('rescheduleReason').value.trim();
-            let message = `Reschedule confirmed!\nAppointment ID: ${currentRescheduleId}\nNew Date: ${dateStr}\nNew Time: ${selectedRescheduleTime}`;
-            if (reason) {
-                message += `\nReason: ${reason}`;
-            }
-            message += '\n\n(Database integration pending)';
-            alert(message);
-            closeRescheduleModal();
+            
+            // Show confirmation popup
+            showRescheduleConfirmation(currentRescheduleId, dateStr, selectedRescheduleTime, reason);
         }
+    }
+    
+    function showRescheduleConfirmation(appointmentId, newDate, newTime, reason) {
+        // Populate the confirmation modal
+        document.getElementById('confirmAppointmentId').textContent = appointmentId;
+        document.getElementById('confirmNewDate').textContent = newDate;
+        document.getElementById('confirmNewTime').textContent = newTime;
+        document.getElementById('confirmReason').textContent = reason || 'Not provided';
+        
+        // Show confirmation modal
+        document.getElementById('rescheduleConfirmationModal').style.display = 'flex';
+    }
+    
+    function closeRescheduleConfirmation() {
+        document.getElementById('rescheduleConfirmationModal').style.display = 'none';
+    }
+    
+    function finalizeReschedule() {
+        // Convert selected date to YYYY-MM-DD format
+        const year = selectedRescheduleDate.getFullYear();
+        const month = String(selectedRescheduleDate.getMonth() + 1).padStart(2, '0');
+        const day = String(selectedRescheduleDate.getDate()).padStart(2, '0');
+        const dateStr = `${year}-${month}-${day}`;
+        
+        // Convert 12-hour time to 24-hour format (HH:MM:SS)
+        const timeParts = selectedRescheduleTime.match(/(\d+):(\d+) (AM|PM)/);
+        let hours = parseInt(timeParts[1]);
+        const minutes = timeParts[2];
+        const period = timeParts[3];
+        
+        if (period === 'PM' && hours !== 12) hours += 12;
+        if (period === 'AM' && hours === 12) hours = 0;
+        
+        const timeStr = `${String(hours).padStart(2, '0')}:${minutes}:00`;
+        
+        const reason = document.getElementById('rescheduleReason').value.trim();
+        
+        // Send to backend API
+        fetch('api/manage-booking.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                action: 'reschedule',
+                id: currentRescheduleId,
+                requested_date: dateStr,
+                requested_time: timeStr,
+                reschedule_reason: reason
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Close both modals
+                closeRescheduleConfirmation();
+                closeRescheduleModal();
+                
+                // Show success message
+                showRescheduleSuccessModal();
+            } else {
+                alert('Error: ' + (data.message || 'Failed to submit reschedule request'));
+                closeRescheduleConfirmation();
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('An error occurred while submitting your reschedule request');
+            closeRescheduleConfirmation();
+        });
+    }
+    
+    function showRescheduleSuccessModal() {
+        document.getElementById('rescheduleSuccessModal').style.display = 'flex';
+        setTimeout(() => {
+            location.reload();
+        }, 2000);
+    }
+    
+    function closeRescheduleSuccessModal() {
+        document.getElementById('rescheduleSuccessModal').style.display = 'none';
+        location.reload();
     }
 
     function cancelBooking(id) {
@@ -712,5 +853,119 @@ $cancelled = array_filter($bookings, function($b) {
             </button>
         </div>
     </div>
+    
+    <!-- Reschedule Confirmation Modal -->
+    <div id="rescheduleConfirmationModal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); backdrop-filter: blur(4px); z-index: 10001; align-items: center; justify-content: center;">
+        <div style="background: white; border-radius: 16px; padding: 0; max-width: 440px; width: 90%; margin: 20px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); animation: slideUp 0.3s ease;">
+            <!-- Header -->
+            <div style="background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%); padding: 24px; border-radius: 16px 16px 0 0;">
+                <div style="text-align: center; color: white;">
+                    <div style="width: 56px; height: 56px; background: rgba(255,255,255,0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 12px; border: 3px solid rgba(255,255,255,0.3);">
+                        <svg style="width: 28px; height: 28px; color: white;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                            <polyline points="1 4 1 10 7 10"></polyline>
+                            <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path>
+                        </svg>
+                    </div>
+                    <h3 style="font-size: 20px; font-weight: 700; margin: 0;">Reschedule Confirmed!</h3>
+                </div>
+            </div>
+            
+            <!-- Body -->
+            <div style="padding: 24px;">
+                <p style="font-size: 14px; color: #6b7280; margin-bottom: 20px; text-align: center;">Please review your new appointment details:</p>
+                
+                <!-- Details Box -->
+                <div style="background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 12px; padding: 16px; margin-bottom: 20px;">
+                    <div style="margin-bottom: 12px;">
+                        <div style="font-size: 11px; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; font-weight: 600;">Appointment ID</div>
+                        <div style="font-size: 15px; font-weight: 700; color: #1f2937;" id="confirmAppointmentId">19</div>
+                    </div>
+                    
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px;">
+                        <div>
+                            <div style="font-size: 11px; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; font-weight: 600;">New Date</div>
+                            <div style="font-size: 14px; font-weight: 600; color: #1f2937; display: flex; align-items: center; gap: 6px;">
+                                <svg style="width: 14px; height: 14px; color: #3b82f6;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                                    <line x1="16" y1="2" x2="16" y2="6"></line>
+                                    <line x1="8" y1="2" x2="8" y2="6"></line>
+                                    <line x1="3" y1="10" x2="21" y2="10"></line>
+                                </svg>
+                                <span id="confirmNewDate">November 30, 2025</span>
+                            </div>
+                        </div>
+                        <div>
+                            <div style="font-size: 11px; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; font-weight: 600;">New Time</div>
+                            <div style="font-size: 14px; font-weight: 600; color: #1f2937; display: flex; align-items: center; gap: 6px;">
+                                <svg style="width: 14px; height: 14px; color: #3b82f6;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <circle cx="12" cy="12" r="10"></circle>
+                                    <polyline points="12 6 12 12 16 14"></polyline>
+                                </svg>
+                                <span id="confirmNewTime">03:30 PM</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <div style="font-size: 11px; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; font-weight: 600;">Reason</div>
+                        <div style="font-size: 13px; color: #4b5563; font-style: italic;" id="confirmReason">qwe</div>
+                    </div>
+                </div>
+                
+                <!-- Info Notice -->
+                <div style="background: #fef3c7; border-left: 4px solid #f59e0b; padding: 12px 16px; border-radius: 8px; margin-bottom: 20px;">
+                    <div style="display: flex; align-items: start; gap: 10px;">
+                        <svg style="width: 18px; height: 18px; color: #f59e0b; flex-shrink: 0; margin-top: 1px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <line x1="12" y1="16" x2="12" y2="12"></line>
+                            <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                        </svg>
+                        <div style="font-size: 12px; color: #92400e; line-height: 1.5;">
+                            <strong style="display: block; margin-bottom: 2px;">Database integration pending</strong>
+                            This reschedule will be saved to the database once the backend API is connected.
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Action Buttons -->
+                <div style="display: flex; gap: 10px;">
+                    <button onclick="closeRescheduleConfirmation()" style="flex: 1; padding: 12px; background: #f3f4f6; color: #374151; border: none; border-radius: 10px; font-weight: 600; cursor: pointer; font-size: 14px; transition: all 0.2s;" onmouseover="this.style.background='#e5e7eb'" onmouseout="this.style.background='#f3f4f6'">
+                        Go Back
+                    </button>
+                    <button onclick="finalizeReschedule()" style="flex: 1; padding: 12px; background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%); color: white; border: none; border-radius: 10px; font-weight: 600; cursor: pointer; font-size: 14px; box-shadow: 0 4px 12px rgba(30, 58, 138, 0.3); transition: all 0.2s;" onmouseover="this.style.transform='translateY(-1px)'; this.style.boxShadow='0 6px 16px rgba(30, 58, 138, 0.4)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 12px rgba(30, 58, 138, 0.3)'">
+                        Confirm
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Reschedule Success Modal -->
+    <div id="rescheduleSuccessModal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); backdrop-filter: blur(4px); z-index: 10002; align-items: center; justify-content: center;">
+        <div style="background: white; border-radius: 16px; padding: 32px; max-width: 400px; width: 90%; margin: 20px; text-align: center; box-shadow: 0 20px 60px rgba(0,0,0,0.3);">
+            <div style="width: 72px; height: 72px; background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; box-shadow: 0 8px 16px rgba(22, 163, 74, 0.2);">
+                <svg style="width: 36px; height: 36px; color: #16a34a;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round">
+                    <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
+            </div>
+            <h3 style="font-size: 22px; font-weight: 700; margin-bottom: 10px; color: #16a34a;">Successfully Rescheduled!</h3>
+            <p style="font-size: 14px; color: #6b7280; margin-bottom: 20px; line-height: 1.6;">Your appointment has been rescheduled. You will be redirected shortly.</p>
+            <div style="display: flex; align-items: center; justify-content: center; gap: 8px; color: #3b82f6; font-size: 13px; font-weight: 500;">
+                <div style="width: 16px; height: 16px; border: 2px solid #3b82f6; border-top-color: transparent; border-radius: 50%; animation: spin 0.8s linear infinite;"></div>
+                <span>Redirecting...</span>
+            </div>
+        </div>
+    </div>
+    
+    <style>
+        @keyframes slideUp {
+            from { transform: translateY(30px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
 </body>
 </html>
